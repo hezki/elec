@@ -69,14 +69,14 @@ block style_init
 		}
 		.odd .ot1{
 			opacity: 0.45;
-			color: white;			
+			color: white;
 		}
 		html,body,._main_page_section,._main_page{height:100%;margin: 0;padding:0}
 		.day {width:80px;height:22px}
 		#edit_table tbody td {padding-right:13px;position:relative}
 		.reset_days {
 			color:silver;
-			position: absolute;			
+			position: absolute;
 			display: block;
 			font-size: 12px;
 			right: 3px;
@@ -103,7 +103,7 @@ block style_init
 			border-radius: 10px;
 			height: 15px;
 			width: 15px;
-			border-width: 1px;	
+			border-width: 1px;
 			box-sizing: border-box;
 			display:inline-block;
 			opacity:0.7;
@@ -151,7 +151,7 @@ block style_init
 		.type{display:inline-block;height:100%;width:100%}
 		.toggle_btn{border:0;transform: scale(2,2);}
 		.select2-dropdown .toggle_btn{display:none}
-		.left{width:100%;}			
+		.left{width:100%;}
 		.switch_on,.switch_off{ width: 7px;height: 7px;box-sizing: border-box;border: 4px solid red;border-radius: 3px;line-height: 1px;display: inline-block;    margin-left: 3px;opacity:0.8}
 		.switch_on{border-color:green}
 		.lock{background-image:url('/projects/elec/lock.gif');display:inline-block;width:10px;height:10px}
@@ -195,12 +195,12 @@ block style_init
 block main
 	div.flex(style='height:100%;min-width:900px')
 			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')
-				.navbar-brand(stye='font-size:37px') מפקד החשמל							
-				.nav.navbar-left(style='margin-top:7px')					
+				.navbar-brand(stye='font-size:37px') מפקד החשמל
+				.nav.navbar-left(style='margin-top:7px')
 					#grps
 					+rst({name:'grps',lazy:1,request:1})
 					script#tgrps(type="text/ractive")
-						.btn-group.hide(style='position:absolute;left:20px')							
+						.btn-group.hide(style='position:absolute;left:20px')
 							button.btn.btn-sm.btn-default(class="{{edit_mode=='status'?'btn-primary':''}}",onclick=set('edit_mode','status'),style='padding: 3px 10px;font-size: 120%;height: 32px;')
 								//-i.fa.fa-calendar
 								i.fa.fa-sliders
@@ -231,7 +231,7 @@ block main
 											i.glyphicon.glyphicon-backward
 										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','fnext'))
 											i.glyphicon.glyphicon-fast-backward
-					.area(style='position:absolute;overflow-y:scroll;overflow-x:hidden;bottom: 0;top: 0;padding:5px;padding-top:60px;width: 100%;')						
+					.area(style='position:absolute;overflow-y:scroll;overflow-x:hidden;bottom: 0;top: 0;padding:5px;padding-top:60px;width: 100%;')
 						#stt
 							+rst({name:'stt',lazy:1,request:1})
 							script#tstt(type="text/ractive")
@@ -241,7 +241,7 @@ block main
 									.start(cid="{{id_b}}", class!="{{m_b==''&&id_b?'hand':''}}") {{f}}
 									.end(cid="{{id_e}}",class!="{{m_e==''&&id_e?'hand':''}}") {{t}}
 								:ractive {{/w}}
-								:ractive <!--{{/w}}-->														
+								:ractive <!--{{/w}}-->
 								.row
 									center.col-md-12
 										
@@ -269,15 +269,15 @@ block main
 													.day-stt(day='2')
 														.ot {{~/days[2].hwd}}
 														:ractive {{>w {w:w3}}}
-												td.day.odd													
+												td.day.odd
 													.day-stt(day='3')
 														.ot {{~/days[3].hwd}}
 														:ractive {{>w {w:w4}}}
-												td.day													
+												td.day
 													.day-stt(day='4')
 														.ot {{~/days[4].hwd}}
 														:ractive {{>w {w:w5}}}
-												td.day.odd													
+												td.day.odd
 													.day-stt(day='5')
 														.ot {{~/days[5].hwd}}
 														:ractive {{>w {w:w6}}}
@@ -297,11 +297,11 @@ block main
 														.over
 															.part(day='0')
 															.part(day='1')
-												td(colspan='2')												
-													.data-name														
+												td(colspan='2')
+													.data-name
 														.overb
 															.partb
-															.partb.odd														
+															.partb.odd
 														div(style='width:160px')
 															span(class="{{locked=='1'?'lock':''}}")
 															span(class="switch_{{status=='1'?'on':'off'}}")
@@ -329,29 +329,29 @@ block main
 						+rst({name:'edit',lazy:1,request:1})
 						
 						script#tedit(type="text/ractive")
-							.edit_in_area.flex(style='position:absolute;bottom: 0;top: 0px;padding:5px;width:100%;')								
+							.edit_in_area.flex(style='position:absolute;bottom: 0;top: 0px;padding:5px;width:100%;')
 								.row
 									.col-md-7
 										.form-group.form-group-lg
-											select.form-control.select2(value="{{sid}}")								
+											select.form-control.select2(value="{{sid}}")
 												:ractive {{#switchsA:i}}
 												option(value="{{id}}")
 													span(class="{{status=='1'?'light_on':'light_off'}}")
-													span.matcon-name {{name}}												
+													span.matcon-name {{name}}
 													//-:ractive {{#if sid==this.id && locked=='0'}}
 														button.btn.btn-link.btn-sm.pull-left.toggle_btn(onclick=ev('toggle_btn'),onmousedown='Yes.stop(event);')
-															i.fa.fa-power-off(title="{{status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{status=='1'?'red':'green'}}")													
+															i.fa.fa-power-off(title="{{status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{status=='1'?'red':'green'}}")
 														.btn-group.pull-left
 															button.btn.btn-sm(onclick=ev('set_lock',0),class="{{sw.locked=='0'?'btn-primary':'btn-default'}}") שעון
 															button.btn.btn-sm(onclick=ev('set_lock',1),class!="{{sw.lock_status=='1' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 1
 															button.btn.btn-sm(onclick=ev('set_lock',2),class!="{{sw.lock_status=='0' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 0
-														:ractive {{/if}}												
+														:ractive {{/if}}
 												:ractive {{/switchsA}}
 									:ractive {{#if sw}}
 									.col-md-5(style='padding-top:7px;padding-bottom:10px')
 										:ractive {{# sw.locked=='0'}}
 										button.btn.btn-link.btn-sm.toggle_btn(onclick=ev('toggle_btn'),onmousedown='Yes.stop(event);')
-											i.fa.fa-power-off(title="{{sw.status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{sw.status=='1'?'red':'green'}}")													
+											i.fa.fa-power-off(title="{{sw.status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{sw.status=='1'?'red':'green'}}")
 										:ractive {{/if}}
 										.btn-group(style='padding-right:10px')
 											button.btn(onclick=ev('set_lock',0),class="{{sw.locked=='0'?'btn-primary':'btn-default'}}") שעון
@@ -390,7 +390,7 @@ block main
 														i.glyphicon(class="glyphicon-hand-left",style='cursor:crosshair',onmousedown=ev('set_auto'))
 														:ractive {{else}}
 														i.glyphicon(class="glyphicon-star",style='color:#00BCD4')
-														:ractive {{/if}}														
+														:ractive {{/if}}
 														span &nbsp;
 														:ractive {{/if}}
 														span.matcon-flag(style='border-color:#{{color}}')
@@ -406,7 +406,7 @@ block main
 												.cmds-area
 													table.table.table-hover#edit_table(style='table-layout: fixed;')
 														thead
-															tr										
+															tr
 																th ימים
 																th נוסחא
 																th שעה
@@ -418,7 +418,7 @@ block main
 																	span.btn.btn-default.btn-xs(onclick=ev("reset_matcon"),style='margin-right:10px')
 																		i.glyphicon.glyphicon-repeat
 																		|   איפוס
-														tbody											
+														tbody
 															:ractive {{#cmds}}
 															tr(id="cmd_{{id}}" style="{{action==1||action==2?'':'opacity:0.5'}}")
 																//td.switch {{~/switchs[this['switch']].name}}
@@ -448,7 +448,7 @@ block main
 																td(section='action')
 																	span.btn.btn-xs(style='width:50px',class="{{action==1?'btn-success':(action==2?'btn-danger':'')}}") {{action==1?'הפעלה':(action==2?'כיבוי':'לא פעיל ('+(last==1?'הפעלה':'כיבוי')+')')}}
 																td.fixed
-																	:ractive {{#if dirty}}																
+																	:ractive {{#if dirty}}
 																	.btn-group
 																		span.btn.btn-xs.btn-primary(onclick=ev('save')) שמור
 																		span.btn.btn-xs.btn-default(onclick=ev('cancel')) בטל
@@ -506,12 +506,12 @@ block dialogs
 						select.form-control(value="{{type}}")
 							option(value="0") שעון רגיל
 							option(value="1") דקות לפני אירוע
-							option(value="2") דקות אחרי אירוע					
+							option(value="2") דקות אחרי אירוע
 							option(value="4") ביום הבא
 					.form-group(class="{{type=='1'||type=='2'?'':'hide'}}")
 						label אירוע
 						select.select2(value="{{zman}}")
-							:ractive {{#if(!zman)}}							
+							:ractive {{#if(!zman)}}
 							option(value="")
 							:ractive {{/if}}
 							:ractive {{#~/times:i}}
@@ -556,7 +556,7 @@ block dialogs
 												label.control-label זמני פעילות
 											.col-md-9
 												.input-group.ltr(style='width:100%')
-													input.form-control(value="{{start}}")												
+													input.form-control(value="{{start}}")
 										.form-group
 											.col-md-3
 												label.control-label זמני אי פעילות
@@ -661,12 +661,12 @@ block dialogs
 							button.btn.btn-default.btn-primary(style="position:absolute;left:10px;top:10px",data-dismiss="modal") סגור						
 							//--button.close(data-dismiss="modal")
 								span(aria-hidden="true") &times;
-								span.sr-only Close							
+								span.sr-only Close
 							.modal-title(style='height:27px')
 								.col-xs-3
 									//--b לוח שנה
 								.col-xs-8
-									.btn-group.cal_move									
+									.btn-group.cal_move
 										.btn.btn-sm.btn-default(onclick=ev('cal_move','prevy'))
 											.i.glyphicon.glyphicon-fast-forward
 										.btn.btn-sm.btn-default(onclick=ev('cal_move','prevm'))
@@ -678,7 +678,7 @@ block dialogs
 											.i.glyphicon.glyphicon-fast-backward
 										
 								
-						.modal-body							
+						.modal-body
 							table.tcal
 								thead
 									tr.centered(style="height:40px")
@@ -696,13 +696,13 @@ block dialogs
 										td
 											:ractive {{#if gmon}}
 											.info(date="{{date}}")
-												.back(style="background-color:#{{~/matcons[matcon].color}}")											
+												.back(style="background-color:#{{~/matcons[matcon].color}}")
 												.iday 
 													.d {{gday}}
 													.month {{gmon}}
 												.iday.hday 
 													.d {{hday}}
-													.month {{hmon}}	
+													.month {{hmon}}
 												.iday_info
 													.day1 {{day1}}
 													.day2 {{day2}}
@@ -712,9 +712,9 @@ block dialogs
 													span &nbsp;
 													:ractive {{/if}}
 													| {{~/matcons[matcon].name}}
-											:ractive {{/if}}	
+											:ractive {{/if}}
 										:ractive {{/.}}
 									:ractive {{/weeks}}
 						//-.modal-footer
-							button.btn.btn-default.btn-primary(data-dismiss="modal") סגור						
+							button.btn.btn-default.btn-primary(data-dismiss="modal") סגור
 		
