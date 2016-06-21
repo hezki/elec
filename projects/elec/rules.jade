@@ -1,0 +1,199 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){
+			$(document).on('click','.days .btn',function(){
+				var r=$(this).closest('table').attr('id');
+				var d=$$.grids[r].data($(this).closest('td'));
+				d.daysc[$(this).attr('d')]=d.daysc[$(this).attr('d')]=='0'?'1':'0';				
+				$$.emit('grid.'+r+'.update',$(this).closest('td'),parseInt(d.daysc.join(''),2));
+				//$$.emit('data.'+r+'.update',{id:d.id,days:parseInt(d.daysc.join(''),2)},d);				
+			});
+			$('.offcanvas-btn').css('position','absolute');
+			var h=' אבגדהוזחט'.split(''),h10=' יכל'.split('');
+			var hd={};
+			for(var i=1;i<31;i++)hd[i]=(h10[(i/10)>>0]+h[(i%10)]).trim();
+			hd[15]='טו';
+			hd[16]='טז';
+			$$.data.lookups={hdays:hd};
+			h=',תשרי,חשון,כסלו,טבת,שבט,אדר א,אדר \\ אדר ב,ניסן,אייר,סיון,תמוז,אב,אלול'.split(',');			
+			hd={};
+			for(var i=1;i<h.length;i++)hd[i]=h[i];
+			$$.data.lookups.hmon=hd;
+			h=',ינואר,פברואר,מרץ,אפריל,מאי,יוני,יולי,אוגוסט,ספטמבר,אוקטובר,נובמבר,דצמבר'.split(',');
+			hd={};
+			for(var i=1;i<h.length;i++)hd[i]=h[i];
+			$$.data.lookups.gmon=hd;
+			var x=$$.data.grps=Yes.server({localy:1,cmd:'list',type:'grps'});
+			$$.rsts.grps.set('grps',x);			
+			var x=$$.data.matcons={};
+			Yes.server({localy:1,cmd:'list',type:'matcons'}).forEach(function(d){
+				if(!x[d.grp])x[d.grp]={'0':{name:'[ללא מתכון]'}};
+				x[d.grp][d.id]=d;
+			});			
+			var x=Yes.ls('def');
+			if(x && x.grp){$$.emit('grp',x.grp);}
+		});
+		$$.on('data.rulese.request',function(){
+		});
+		$$.on('data.rulesh.request',function(){
+		});
+		$$.on('data.rules.refresh',function(params){
+			if(!params)params={};
+			var x={};
+			Yes.server({localy:1,cmd:"list",type:"rules",grp:$$.rsts.grps.data.grp}).forEach(function(d){
+				if(!x[d.cal_type])x[d.cal_type]=[];
+				x[d.cal_type].push(d);
+			});
+			$$.data["rulese"]=x[0];
+			$$.data["rulesh"]=x[1];
+			$$.emit("data.rulese.refreshed",$$.data["rulese"]);	
+			$$.emit("data.rulesh.refreshed",$$.data["rulesh"]);	
+		});
+		$$.on('data.rulesh.update',function(d,all){
+			var c=$.extend({},all,d);
+			if(c.end_m && c.end_d && c.begin_d && c.begin_m){
+				if(parseInt(c.begin_m)>parseInt(c.end_m)||
+					(c.begin_m==c.end_m && parseInt(c.begin_d)>parseInt(c.end_d)))Yes.err('סיום לפני התחלה');
+			};
+			var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:d});
+			$$.emit('data.rulesh.updated',res,all);
+		});
+		$$.on('data.rulese.update',function(d,all){
+			var c=$.extend({},all,d);
+			if(c.end_m && c.end_d && c.begin_d && c.begin_m){
+				if(parseInt(c.begin_m)>parseInt(c.end_m)||
+					(c.begin_m==c.end_m && parseInt(c.begin_d)>parseInt(c.end_d)))Yes.err('סיום לפני התחלה');
+			};
+			var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:d});
+			$$.emit('data.rulese.updated',res,all);
+		});
+		$$.on('data.rulese.del',function(){
+			var d=$$.grids.rulese.last(),tr=$$.grids.rulese.lastRow();
+			if(!d)return;
+			bootbox.confirm('למחוק את <b>'+d.desc+'</b>?',function(r){
+				if(!r)return;
+				Yes.server({localy:1,cmd:'del',tbl:'rules',id:d.id});
+				$$.grids.rulese.row(tr).remove().draw();
+			});
+		});
+		$$.on('data.rulesh.del',function(){
+			var d=$$.grids.rulesh.last(),tr=$$.grids.rulesh.lastRow();
+			if(!d)return;
+			bootbox.confirm('למחוק את <b>'+d.desc+'</b>?',function(r){
+				if(!r)return;
+				Yes.server({localy:1,cmd:'del',tbl:'rules',id:d.id});
+				$$.grids.rulesh.row(tr).remove().draw();
+			});
+		});
+		$$.on('data.rulese.add',function(){
+			bootbox.prompt('שם כלל',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:{desc:r,grp:$$.rsts.grps.data.grp,cal_type:0}});
+				$$.emit('data.rulese.added',res);				
+			});
+		});
+		$$.on('data.rulesh.add',function(){
+			bootbox.prompt('שם כלל',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:{desc:r,grp:$$.rsts.grps.data.grp,cal_type:1}});
+				$$.emit('data.rulesh.added',res);				
+			});
+		});
+		$$.on('grp',function(v){
+			if(v)Yes.ls('def',$.extend(Yes.ls('def'),{grp:v}));
+			$('#rulese').closest('.hide').removeClass('hide');
+			//$$.data.lookups.matcons=$$.data.matcons[v];
+			$$.rsts.grps.set('grp',v);
+			$$.emit('data.rules.refresh');
+		});
+		window.mat_lookup_obj=function(v,obj,key){
+			return $$.data.matcons[obj.grp];			
+		};
+		window.mat_lookup=function(v,obj,key){			
+			return $$.data.matcons[obj.grp]?$$.data.matcons[obj.grp][v]:'[מתכון לא קיים]';			
+		}
+		window.days_render=function(d,f,all){
+			//var a='אבגדהוש'.split('');
+			var a='שוהדגבא'.split('');
+			var base='<span d="@" class="btn btn-xs btn-#">';
+			var r=[];
+			all.daysc=parseInt(parseInt(d).toString(2)).pad(7).split('');
+			a.forEach(function(d,di){r.push(base.replace('@',di).replace('#',(all.daysc[di]=='1'?'primary':'default'))+d+'</span>')});
+			return '<span class="days">'+r.reverse().join('')+'</span>';
+		};
+		window.ord_render=function(all,type){
+			switch(type){
+				case 'bm':
+					return all.begin_m+(all.begin_d/100);
+				case 'em':
+					return all.end_m+(all.end_d/100);
+				case 'ord':
+					return all.ord+(((all.begin_m+10)+all.begin_d)/100);
+			}
+		};
+block main
+	style.
+		td.color {padding:0 !important}
+		td.color div{height:37px;padding:8px}
+		.input_color {height:35px;width:100%}
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - כללים
+			.col-md-2
+				#grps
+					+rst({name:'grps',lazy:1,request:1})
+					script#tgrps(type="text/ractive")
+						ul.nav.nav-stacked.nav-pills
+							:ractive {{#grps}}
+							li(data-toggle='collapse',class="{{id==~/grp?'active':''}}")
+								a(href='#',cal='{{id}}',onclick!='$$.emit(\'grp\',\'{{id}}\')') 
+									span {{name}}
+							:ractive {{/}}
+				
+			.col-md-10.hide
+				.row
+					p.help-block
+						| במסך זה מוגדרים הכללים לפיהם המערכת מגדירה מתכונים אופן אוטמטי. הכללים מבוצעים לפי סדר הרמה שלהם, כאשר הכללים המאוחרים גוברים על המוקדמים, ולפיכך המתכון שיופעל בפועל ביום מסוים הוא זה המוגדר ברמה <b>האחרונה</b> המתייחסת ליום זה.
+						br
+						| בכל רמה, מבוצע הלוח הלועזי לפני העברי, ולפיכך (במקרה של סתירה) גובר הלוח העברי. אם מוגדרים שני כללים באותה רמה, לא ניתן לדעת מה יופעל קודם, ובמקרה של סתירה התוצאות אינם צפויות. לפיכך חשוב להגדיר רמה נפרדת כשהטווח של הכללים חופף
+						br
+				.row
+					h2 כללי לוח עברי
+					-var cols=[]											
+					-cols.push({ "title": "רמה",data:"ord",edit:1,type:"",render:function(d,f,a){return f=='sort'?ord_render(a,'ord'):d}})
+					-cols.push({ "title": "שם",data:"desc",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "מיום",data:"begin_d",edit:1,type:"int",lookup:'data.lookups.hdays',render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "חודש",data:"begin_m",edit:1,type:"int",lookup:'data.lookups.hmon',render:function(d,f,a){return f=='sort'?ord_render(a,'bm'):d}})
+					-cols.push({ "title": "עד יום",data:"end_d",edit:1,type:"int",lookup:'data.lookups.hdays',render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "חודש",data:"end_m",edit:1,type:"int",lookup:'data.lookups.hmon',render:function(d,f,a){return f=='sort'?ord_render(a,'em'):d}})
+					-cols.push({ "title": "ימי פעילות",data:"days",edit:0,type:"",render:":func:days_render"})
+					-cols.push({ "title": "מתכון",data:"params",edit:1,type:"int",lookup:{src:'data.lookups.matcons',fld:'name',lookup:":func:mat_lookup",lookup_obj:":func:mat_lookup_obj"},render:function(d,f){return '<span>'+d+'</span>'}})
+					
+					-var opt={name:'rulesh',columns:cols,no_std:1,selectRow:1,btns:{'הוספה':'data.rulesh.add','מחיקה':'data.rulesh.del','space':''}}
+					+grid(opt)			
+				.row
+					h2 כללי לוח לועזי
+					-var cols=[]											
+					-cols.push({ "title": "רמה",data:"ord",edit:1,type:"",render:function(d,f,a){return f=='sort'?ord_render(a,'ord'):d}})
+					-cols.push({ "title": "שם",data:"desc",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "מיום",data:"begin_d",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "חודש",data:"begin_m",edit:1,type:"int",lookup:'data.lookups.gmon',render:function(d,f,a){return f=='sort'?ord_render(a,'bm'):d}})
+					-cols.push({ "title": "עד יום",data:"end_d",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "חודש",data:"end_m",edit:1,type:"int",lookup:'data.lookups.gmon',render:function(d,f,a){return f=='sort'?ord_render(a,'em'):d}})
+					-cols.push({ "title": "ימי פעילות",data:"days",edit:0,type:"",render:":func:days_render"})
+					-cols.push({ "title": "מתכון",data:"params",edit:1,type:"",lookup:{src:'data.lookups.matcons',fld:'name',lookup:":func:mat_lookup",lookup_obj:":func:mat_lookup_obj"},render:function(d,f){return '<span>'+d+'</span>'}})
+					-var opt={name:'rulese',columns:cols,no_std:1,selectRow:1,btns:{'הוספה':'data.rulese.add','מחיקה':'data.rulese.del','space':''}}
+					+grid(opt)
+	
+block dialogs
+	#matle(role='dialog')

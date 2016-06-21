@@ -1,0 +1,39 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){		
+			$('.offcanvas-btn').css('position','absolute');
+			$$.rsts.settings.set('rows',Yes.server({localy:1,cmd:'list',type:'settings'}));
+		});
+		$$.on('edit',function(v,old,key,p){
+			p=p[0];
+			Yes.server({localy:1,cmd:'upd',type:'settings',k:p.name,v:p.val});
+		});
+block main
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - הגדרות
+			.col-md-10
+				form.form.form-horizontal#settings
+					+rst({name:'settings',lazy:1,request:1,mapEvents:{'/^rows\\./':'edit'}})
+					script#tsettings(type="text/ractive")
+						:ractive {{#rows:i}}
+						.form-group
+							label.control-label.col-md-2 {{desc}}
+							.col-md-5
+								input.form-control(value="{{val}}")
+						:ractive {{/rows}}
+				
+
+	
+block dialogs
+	#matle(role='dialog')

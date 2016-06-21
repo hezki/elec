@@ -1,0 +1,91 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){
+			$('.offcanvas-btn').css('position','absolute');
+			var x=$$.data.grps=Yes.server({localy:1,cmd:'list',type:'grps'});
+			$$.rsts.grps.set('grps',x);
+			var x=Yes.ls('def');
+			if(x && x.grp){$$.emit('grp',x.grp);}
+		});
+		$$.on('data.matcons.request',function(){
+		});
+		$$.on('data.matcons.refresh',function(params){
+			if(!params)params={};
+			var x=$$.data["matcons"]=Yes.server({localy:1,cmd:"list",type:"matcons",grp:$$.rsts.grps.data.grp});	
+			x.forEach(function(d){
+				d.color='#'+d.color;
+			});
+			$$.emit("data.matcons.refreshed",$$.data["matcons"]);	
+		});
+		$$.on('data.matcons.update',function(d,all){
+			var res=Yes.server({localy:1,cmd:'upd',type:'matcons',data:d});
+			$$.emit('data.matcons.updated',res,all);
+		});
+		$$.on('data.matcons.del',function(){
+			var d=$$.grids.matcons.last(),tr=$$.grids.matcons.lastRow();
+			if(!d)return;
+			bootbox.confirm('למחוק מתכון <b>'+d.name+'</b> לחלוטין?',function(r){
+				if(!r)return;
+				Yes.server({cmd:'del_matcon',id:d.id});
+				$$.grids.matcons.row(tr).remove().draw();
+			});
+		});
+		$$.on('data.matcons.add',function(){
+			bootbox.prompt('שם מתכון',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'matcons',data:{grp:$$.rsts.grps.data.grp,name:r}});
+				$$.emit('data.matcons.added',res);				
+			});
+		});
+		$$.on('grp',function(v){
+			if(v)Yes.ls('def',$.extend(Yes.ls('def'),{grp:v}));
+			$('#matcons').closest('.hide').removeClass('hide');
+			$$.rsts.grps.set('grp',v);
+			$$.emit('data.matcons.refresh');
+		});
+		
+		
+block main
+	style.
+		td.color {padding:0 !important}
+		td.color div{height:37px;padding:8px}
+		.input_color {height:35px;width:100%}
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - מתכונים
+			.col-md-2
+				#grps
+					+rst({name:'grps',lazy:1,request:1})
+					script#tgrps(type="text/ractive")
+						ul.nav.nav-stacked.nav-pills
+							:ractive {{#grps}}
+							li(data-toggle='collapse',class="{{id==~/grp?'active':''}}")
+								a(href='#',cal='{{id}}',onclick!='$$.emit(\'grp\',\'{{id}}\')') 
+									span {{name}}
+							:ractive {{/}}
+				
+			.col-md-5.hide
+				-var cols=[]					
+				-cols.push({ "title": "סדר",data:"ord",edit:1,type:"int"})
+				
+				-cols.push({ "title": "שם",data:"name",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+				//-cols.push({ "title": "צבע",data:"color",edit:1,width:30,class:'color', type:"",render:function(d,f){return '<div style="background-color:#'+d+'">'+d+'</div>'}})
+				-cols.push({ "title": "צבע",data:"color",edit:1,width:30,class:'color', type:"color"})
+				
+				-var opt={name:'matcons',columns:cols,selectRow:1,no_std:1,btns:{'הוספה':'data.matcons.add','מחיקה':'data.matcons.del','space':''}}
+				+grid(opt)
+					
+	
+	
+block dialogs
+	#matle(role='dialog')

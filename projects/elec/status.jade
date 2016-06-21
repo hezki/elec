@@ -1,0 +1,720 @@
+extends ../layout
+block libs
+	-libs='@base@,select2,multiselect,fa'
+
+block title
+	title #{C.TITLE}
+block navbar
+	include navbar
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-toggle.js')
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+	script(src='/projects/elec/status.js')
+	//-script(src='/projects/elec/jquery.peity.js')
+	link(href='/bootstrap-3.0.0/dist/css/bootstrap-toggle.css', rel='stylesheet')
+	//-link(href='/projects/elec/status.css', rel='stylesheet')
+block init
+	:js
+		init();
+		$$.on('window.ready.after',function(){
+			//-$("span.pie").peity("pie", { radius:14 });
+		});
+
+block style_init
+	:css
+		
+		::-webkit-scrollbar {
+			-webkit-appearance:none;
+			width:9px;
+			height:8px;
+			background-color:#f0f0f0;
+		}
+		::-webkit-scrollbar-thumb {
+			border-radius:2px;
+			border1:4px solid rgba(255,255,255,0);
+			background-clip:content-box;
+			_background-color:#bfbfbf;
+			background-color: #A0A0A0;
+		}
+		::-webkit-scrollbar-thumb:hover {
+			border-radius:2px;
+			border1:0px solid rgba(255,255,255,0);
+			background-clip:content-box;
+			background-color:#A0A0A0;
+		}
+		::-webkit-scrollbar-corner {
+			background-color:#e6e6e6;
+		}
+		body{
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+		.ot {
+			position: absolute;
+			width: 80px;
+			padding-top1: 3px;
+			text-align1: center;
+			z-index: 99;
+			font-size1: 200%;
+			font-size: 60%;
+			font-weight: bold;
+			opacity1: 0.07;
+			opacity: 0.6;
+			color1: #605D61;
+			color1: #673AB7;
+		}
+		.odd .ot1{
+			opacity: 0.45;
+			color: white;			
+		}
+		html,body,._main_page_section,._main_page{height:100%;margin: 0;padding:0}
+		.day {width:80px;height:22px}
+		#edit_table tbody td {padding-right:13px;position:relative}
+		.reset_days {
+			color:silver;
+			position: absolute;			
+			display: block;
+			font-size: 12px;
+			right: 3px;
+			top: 10px;
+			cursor: pointer;
+		}
+		.reset_days:hover{
+			color:black;
+		}
+		.new-tbl td{border-left:1px solid white;border-left:1px solid white;box-sizing: border-box;}
+		.new-tbl {
+			table-layout:fixed;
+			border-collapse:collapse;
+			background-image1: repeating-linear-gradient(-90deg,transparent,transparent 79px,#CCC 79px,#CCC 80px)
+			,repeating-linear-gradient(-90deg,transparent,transparent 89px,#CCC 80px,#CCC 80px);
+			background-size1: 80px 100%;
+			transition: transform 0.3s;
+			-webkit-transition1: transform 1s ease-in;
+			-moz-transition1: transform 1s ease-in;
+			-o-transition1: transform 1s ease-in;
+			transition1: transform 1s ease-in;
+		}
+		.light_on,.light_off{
+			border-radius: 10px;
+			height: 15px;
+			width: 15px;
+			border-width: 1px;	
+			box-sizing: border-box;
+			display:inline-block;
+			opacity:0.7;
+			margin-left:6px;
+		}
+		.light_on{
+			border-color: green;
+			background: radial-gradient(circle, #B7E64C ,#169416 );
+		}
+		.light_off{
+			border-color: red;
+			background: radial-gradient(circle, #F7D3CD ,red  );
+		}
+		.on{height:5px;border:0px solid #F08080;position:absolute;top:18px;background-color:#FFA07A;box-sizing:border-box}
+		.start1,.end1 {padding-left:2px;padding-right:2px;position:absolute;font-size:7.5px;line-height:6.5px;font-family:'courier new';z-index:3;
+		
+		width:25px;transformOrigin:100% 0%;-webkit-transform:rotate(60deg);transform:rotate(60deg);color:gray;}
+		.odd1 .start,.odd1 .end{background-color:#FFF0F5}
+		.on:hover .start,.on:hover .end{color:black;z-index:10;background-color:#ffffff;font-size:70%}
+		/*.start.flashed,.end.flashed{}*/
+		.start1{display1:none;right:0;margin-right:-9px;top:-8px;}
+		.end1{display1:none;left:0;margin-left:-9px;top:-8px;}
+		.start,.end{
+			position: absolute;font-size: 50%;line-height: 1px;transform: rotate(70deg);color: rgba(199, 42, 5, 0.47);z-index: 99;width:0;cursor:pointer;
+			font-family: 'Alef Hebrew',"Alef", "Arial", sans-serif;
+		}
+		.start{right: -2px; top: -3px;display:inline-block}
+		.end{left: 7px; bottom: -18px;display:inline-block }
+		.start.hand, .end.hand,.on:hover .start.hand,.on:hover .end.hand{color:blue}
+		td:hover .start{display:block}
+		td:hover .end{display:block}
+		.day-stt{position:relative;width:80px;height:40px}
+		.odd{background-color:#FFF0F5}
+		.data-dayname{font-size:80%;color:white;background-color:#8B1B07;text-align:center}
+		.data-name{padding-top: 8px;height:22px;overflow:hidden;position:relative; font-size:65%;color:rgba(0,0,0,0.65);text-align:right;border-bottom:1px solid rgba(15, 5, 5,0.1);cursor:pointer;padding-bottom:1px;line-height:89%;box-sizing: border-box;}
+		.data-name:hover{color:black;font-size:85%;padding-bottom:0}
+		.data-dayname t1d,.data-name td{border:0}
+		.navbar-brand {font-size:37px}
+		#top.navbar {padding-right:50px;padding-left:20px}
+		.wrap {position:absolute;top:0;left:0;bottom:0;width:100%;opacity:0.3}
+		.over{position:absolute;top:0;width:100%;height:100%;background-color:red;opacity:0;display:flex;flex-direction:row}
+		.part{flex:1 1 auto}
+		.overb{position:absolute;top:0;width:100%;height:100%;z-index:-2;display:flex;flex-direction:row}
+		.partb{flex:1 1 auto}
+		.type{display:inline-block;height:100%;width:100%}
+		.toggle_btn{border:0;transform: scale(2,2);}
+		.select2-dropdown .toggle_btn{display:none}
+		.left{width:100%;}			
+		.switch_on,.switch_off{ width: 7px;height: 7px;box-sizing: border-box;border: 4px solid red;border-radius: 3px;line-height: 1px;display: inline-block;    margin-left: 3px;opacity:0.8}
+		.switch_on{border-color:green}
+		.lock{background-image:url('/projects/elec/lock.gif');display:inline-block;width:10px;height:10px}
+		.matcon-flag {display:inline-block;width:10px;height:5px;border:4px solid red;border-radius:3px;margin-left:5px}
+		td.fixed{white-space:nowrap}
+		.tmp {display:inline-block;border:1px solid rgb(204,204,204);border-radius:2px;padding:2px 6px 2px 6px;margin: 5px 0 0 6px;font-weight:bold;}
+		.tmp .txt {opacity:0.5;display:inline-block;direction:ltr}
+		.tmp_on {color:green}
+		.tmp_off {color:red}
+		.del_tmp {cursor:pointer;color:#999;padding-left:4px}
+		.edit_tmp {color: #B19E9E;top: -2px; margin-right: 7px; ;cursor:pointer;padding:2px;zoom:0.7}
+		.edit_tmp:hover{color:black}
+		.edit_tmp:before {content: "\270f";}
+		.del_tmp:hover {color:black}
+		.share {color:#bbb;cursor:pointer;display:inline-block}
+		.share:hover {color:gray}
+		.shared {color:#9C27B0}
+		.centered th{text-align:center}
+		.inp_btn {color:gray;cursor:pointer;padding: 3px 6px;border-radius:2px}
+		.inp_btn:not(:active) {transition: background-color 200ms step-end;}
+		.inp_btn:active {background: silver;}
+		.inp_btn:hover {color:black;}
+		#new_tmp .input-group-addon { font-size: 70%; border: 0;  background-color: transparent;}
+		
+		@media not all and (max-width: 500px) {
+			.flex{
+				display: flex;flex-direction:column;
+			}
+			.flex1{
+				display: flex;flex:1 1 auto;
+			}
+		}
+		@media all and (max-width: 500px) {
+			.flex{
+				display: flex;flex-direction:column;
+			}
+			.flex1{
+				display: flex;flex:1 1 auto;
+			}
+		}
+block main
+	div.flex(style='height:100%;min-width:900px')
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')
+				.navbar-brand(stye='font-size:37px') מפקד החשמל							
+				.nav.navbar-left(style='margin-top:7px')					
+					#grps
+					+rst({name:'grps',lazy:1,request:1})
+					script#tgrps(type="text/ractive")
+						.btn-group.hide(style='position:absolute;left:20px')							
+							button.btn.btn-sm.btn-default(class="{{edit_mode=='status'?'btn-primary':''}}",onclick=set('edit_mode','status'),style='padding: 3px 10px;font-size: 120%;height: 32px;')
+								//-i.fa.fa-calendar
+								i.fa.fa-sliders
+							button.btn.btn-sm.btn-default(class="{{edit_mode=='edit'?'btn-primary':''}}",onclick=set('edit_mode','edit'),style='padding: 3px 10px;font-size: 130%;height: 32px;')
+								i.fa.fa-cogs
+						.btn-group#grps_list(style='margin-left:120px')
+							:ractive {{#grps:i}}
+							button.btn.btn-sm(onclick=set('~/grp',"{{id}}"),class="{{~/grp==.id?'btn-primary':'btn-default'}}") {{name}}
+							:ractive {{/row}}
+						
+			div.flex1(style='direction:ltr')
+				div.left(style="position:relative;left:0;transition:width 0.35s;direction:rtl")
+					div(style='position:absolute;width:100%;padding-left:20%;padding-right:20%;z-index:999;top:0%;')
+							.cmds.hide
+								.cmds-prev.btn-group(style='position:absolute;right:20%')
+									.cmds-prev-in
+										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','fprev'))
+											i.glyphicon.glyphicon-fast-forward
+										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','prev'))
+											i.glyphicon.glyphicon-forward
+								.cmds-refresh.btn-group(style='position:absolute;right:50%;left:50%')
+									.cmds-refresh-in
+										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','refresh'))
+											i.glyphicon.glyphicon-refresh
+								.cmds-next.btn-group(style='position:absolute;left:20%')
+									.cmds-next-in
+										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','next'))
+											i.glyphicon.glyphicon-backward
+										button.btn.btn-lg.btn-warning.btn-circle(onclick=ev('goto','fnext'))
+											i.glyphicon.glyphicon-fast-backward
+					.area(style='position:absolute;overflow-y:scroll;overflow-x:hidden;bottom: 0;top: 0;padding:5px;padding-top:60px;width: 100%;')						
+						#stt
+							+rst({name:'stt',lazy:1,request:1})
+							script#tstt(type="text/ractive")
+								:ractive <!--{{>w}}-->
+								:ractive {{#w:i}}
+								.on(q="{{this.UID}}",style="right:{{r}}%;width:{{w}}%;background: linear-gradient(90deg, #{{matcons[m_b].color}} 50%, #{{matcons[m_e].color}} 50%);")
+									.start(cid="{{id_b}}", class!="{{m_b==''&&id_b?'hand':''}}") {{f}}
+									.end(cid="{{id_e}}",class!="{{m_e==''&&id_e?'hand':''}}") {{t}}
+								:ractive {{/w}}
+								:ractive <!--{{/w}}-->														
+								.row
+									center.col-md-12
+										
+										table.new-tbl
+											:ractive {{#data:i}}
+											:ractive {{#if i && i%5==0}}
+											tr.data-dayname
+												:ractive {{#days}}
+												td
+													.wday(ondblclick=ev('edit','{{edate}}')) {{hwd}}
+													.hdate {{hdate}}
+													.edate {{edate}}
+												:ractive {{/}}
+											:ractive {{/if}}
+											tr(sid="{{id}}",class1="{{i%2?'':'odd'}}")
+												td.day
+													.day-stt(day='0')
+														.ot {{~/days[0].hwd}}
+														:ractive {{>w {w:w1}}}
+												td.day.odd
+													.day-stt(day='1')
+														.ot {{~/days[1].hwd}}
+														:ractive {{>w {w:w2}}}
+												td.day
+													.day-stt(day='2')
+														.ot {{~/days[2].hwd}}
+														:ractive {{>w {w:w3}}}
+												td.day.odd													
+													.day-stt(day='3')
+														.ot {{~/days[3].hwd}}
+														:ractive {{>w {w:w4}}}
+												td.day													
+													.day-stt(day='4')
+														.ot {{~/days[4].hwd}}
+														:ractive {{>w {w:w5}}}
+												td.day.odd													
+													.day-stt(day='5')
+														.ot {{~/days[5].hwd}}
+														:ractive {{>w {w:w6}}}
+												td.day
+													.ot {{~/days[6].hwd}}
+													.day-stt(day='6') {{>w {w:w7}}}
+											tr(class1="{{i%2?'':'odd'}}")
+												td(colspan='2')
+													.data-name
+														.overb
+															.partb
+															.partb.odd
+														div(style='width:160px')
+															span(class="{{locked=='1'?'lock':''}}")
+															span(class="switch_{{status=='1'?'on':'off'}}")
+															| {{name}}
+														.over
+															.part(day='0')
+															.part(day='1')
+												td(colspan='2')												
+													.data-name														
+														.overb
+															.partb
+															.partb.odd														
+														div(style='width:160px')
+															span(class="{{locked=='1'?'lock':''}}")
+															span(class="switch_{{status=='1'?'on':'off'}}")
+															|  {{name}}
+														.over
+															.part(day='2')
+															.part(day='3')
+												td(colspan='3')
+													.data-name
+														.overb
+															.partb
+															.partb.odd
+															.partb
+														div(style='width:240px')
+															span(class="{{locked=='1'?'lock':''}}")
+															span(class="switch_{{status=='1'?'on':'off'}}")
+															| {{name}}
+														.over
+															.part(day='4')
+															.part(day='5')
+															.part(day='6')
+											:ractive {{/data}}
+				div.right(style="position:relative;left:0;width:0%;direction:rtl;transition:width 0.35s;")
+					#edit.hide
+						+rst({name:'edit',lazy:1,request:1})
+						
+						script#tedit(type="text/ractive")
+							.edit_in_area.flex(style='position:absolute;bottom: 0;top: 0px;padding:5px;width:100%;')								
+								.row
+									.col-md-7
+										.form-group.form-group-lg
+											select.form-control.select2(value="{{sid}}")								
+												:ractive {{#switchsA:i}}
+												option(value="{{id}}")
+													span(class="{{status=='1'?'light_on':'light_off'}}")
+													span.matcon-name {{name}}												
+													//-:ractive {{#if sid==this.id && locked=='0'}}
+														button.btn.btn-link.btn-sm.pull-left.toggle_btn(onclick=ev('toggle_btn'),onmousedown='Yes.stop(event);')
+															i.fa.fa-power-off(title="{{status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{status=='1'?'red':'green'}}")													
+														.btn-group.pull-left
+															button.btn.btn-sm(onclick=ev('set_lock',0),class="{{sw.locked=='0'?'btn-primary':'btn-default'}}") שעון
+															button.btn.btn-sm(onclick=ev('set_lock',1),class!="{{sw.lock_status=='1' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 1
+															button.btn.btn-sm(onclick=ev('set_lock',2),class!="{{sw.lock_status=='0' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 0
+														:ractive {{/if}}												
+												:ractive {{/switchsA}}
+									:ractive {{#if sw}}
+									.col-md-5(style='padding-top:7px;padding-bottom:10px')
+										:ractive {{# sw.locked=='0'}}
+										button.btn.btn-link.btn-sm.toggle_btn(onclick=ev('toggle_btn'),onmousedown='Yes.stop(event);')
+											i.fa.fa-power-off(title="{{sw.status=='1'?'כבה כעת':'הפעל כעת'}}",style="color:{{sw.status=='1'?'red':'green'}}")													
+										:ractive {{/if}}
+										.btn-group(style='padding-right:10px')
+											button.btn(onclick=ev('set_lock',0),class="{{sw.locked=='0'?'btn-primary':'btn-default'}}") שעון
+											button.btn(onclick=ev('set_lock',1),class!="{{sw.lock_status=='1' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 1
+											button.btn(onclick=ev('set_lock',2),class!="{{sw.lock_status=='0' && sw.locked=='1'?'btn-primary':'btn-default'}}") עוקף שעון - 0
+									:ractive {{/if}}								
+								.panel.panel-toggle.panel-default(class="{{~/tmp[sid]?'':'icn'}}")
+									.panel-heading
+										.panel-title.accordion-toggle
+											strong פקודות יומיות
+											span(style='color:#428BCA;font-weight:bold;cursor:pointer;')
+												span(onclick=ev("select_date",1)) {{hfull_edit_date}}
+												span &nbsp;
+												span(onclick=ev("select_date",0)) {{gfull_edit_date}}
+											span.btn.btn-info.btn-xs(style='margin-right:10px',onclick=ev('new_tmp'))
+												i.fa.fa-wrench(style=';padding-right:0')
+												|  חדש
+									.panel-collapse(class="{{~/tmp[sid]?'in':'collapse'}}",style="height:{{~/tmp[sid]?'auto':'0'}}")
+										.panel-body
+											:ractive {{#tmp[sid]}}
+											.tmp(class="{{a=='1'?'tmp_on':'tmp_off'}}",id="tmp_{{id}}")
+												span.del_tmp(onclick=ev("del_tmp")) ×
+												span.txt {{key}}
+												i.edit_tmp.glyphicon(class="{{this.src?'':'hide'}}",onclick=ev("edit_tmp"))
+											:ractive {{/}}
+								.panel.panel-toggle.panel-default.fixed-icn(style='display:flex;flex:1;flex-direction:column')
+										.panel-heading(style='flex:none')
+											.panel-title.accordion-toggle.pull-right(style='padding-left: 10px;padding-top: 7px;')
+												strong פקודות מתכון
+											.input-group
+												select.form-control.select2(value="{{mid}}",style="background-color:#{{m.mc.color}}")
+													:ractive {{#matconsA:i}}												
+													option(value="{{id}}")
+														:ractive {{#if id==~/day_matcon.m}}
+														:ractive {{#if ~/day_matcon.hand}}
+														i.glyphicon(class="glyphicon-hand-left",style='cursor:crosshair',onmousedown=ev('set_auto'))
+														:ractive {{else}}
+														i.glyphicon(class="glyphicon-star",style='color:#00BCD4')
+														:ractive {{/if}}														
+														span &nbsp;
+														:ractive {{/if}}
+														span.matcon-flag(style='border-color:#{{color}}')
+														span.matcon-name {{name}}
+													:ractive {{/matconsA}}
+												.input-group-btn(style='padding-right:10px')
+													.btn.btn-default(style="visibility:{{!mid || mid==~/day_matcon.m?'hidden':'visible'}}",onclick=ev("set_hand"))
+														i.glyphicon.glyphicon-hand-right
+														|  קבע להיום
+													
+										.panel-collapse.collapse.in(style='overflow-x:auto')
+											.panel-body
+												.cmds-area
+													table.table.table-hover#edit_table(style='table-layout: fixed;')
+														thead
+															tr										
+																th ימים
+																th נוסחא
+																th שעה
+																th פעולה
+																th.fixed
+																	span.btn.btn-info.btn-xs(onclick=ev("new_cmd"))
+																		i.fa.fa-wrench
+																		|   חדש
+																	span.btn.btn-default.btn-xs(onclick=ev("reset_matcon"),style='margin-right:10px')
+																		i.glyphicon.glyphicon-repeat
+																		|   איפוס
+														tbody											
+															:ractive {{#cmds}}
+															tr(id="cmd_{{id}}" style="{{action==1||action==2?'':'opacity:0.5'}}")
+																//td.switch {{~/switchs[this['switch']].name}}
+																//td.matcon {{~/matcons[this['matcon']].name}}
+																td.fixed(style='z-index:9;',section="{{action==1||action==2?'days':''}}")
+																	:ractive {{#if action==1||action==2}}
+																	span.reset_days ×
+																	:ractive {{/if}}
+																	span.btn.btn-xs.btn-default(d=6,class="{{daysc[6]==1?'btn-primary':''}}") א
+																	span.btn.btn-xs.btn-default(d=5,class="{{daysc[5]==1?'btn-primary':''}}") ב
+																	span.btn.btn-xs.btn-default(d=4,class="{{daysc[4]==1?'btn-primary':''}}") ג
+																	span.btn.btn-xs.btn-default(d=3,class="{{daysc[3]==1?'btn-primary':''}}") ד
+																	span.btn.btn-xs.btn-default(d=2,class="{{daysc[2]==1?'btn-primary':''}}") ה
+																	span.btn.btn-xs.btn-default(d=1,class="{{daysc[1]==1?'btn-primary':''}}") ו
+																	span.btn.btn-xs.btn-default(d=0,class="{{daysc[0]==1?'btn-primary':''}}") ש
+																	//-:ractive {{else}}
+																	//-span לא פעיל
+																	//-:ractive {{/if}}
+																td(section="{{action==1||action==2?'type':''}}")
+																	//-:ractive {{#if action==1||action==2}}
+																	span.type {{typec}}
+																	//-:ractive {{/if}}
+																td
+																	//-:ractive {{#if action==1||action==2}}
+																	span {{timec}}
+																	//-:ractive {{/if}}
+																td(section='action')
+																	span.btn.btn-xs(style='width:50px',class="{{action==1?'btn-success':(action==2?'btn-danger':'')}}") {{action==1?'הפעלה':(action==2?'כיבוי':'לא פעיל ('+(last==1?'הפעלה':'כיבוי')+')')}}
+																td.fixed
+																	:ractive {{#if dirty}}																
+																	.btn-group
+																		span.btn.btn-xs.btn-primary(onclick=ev('save')) שמור
+																		span.btn.btn-xs.btn-default(onclick=ev('cancel')) בטל
+																	span.btn.btn-xs.btn-default(onclick=ev('del_cmd'),style='margin-right:15px')
+																		i.glyphicon.glyphicon-trash
+																		|  מחק
+																	:ractive {{else}}
+																	span(section='share')
+																		i.glyphicon.glyphicon-link.share(title="שיתוף",class!="{{share && share!='0'?'shared':''}}",onclick=ev('share'))
+																	:ractive {{/if}}
+																	
+																	
+															:ractive {{/cmds}}
+								
+block dialogs
+	#matle(role='dialog')
+		+dlg('share','share')
+		.modal.fade#share
+			script#tshare(type="text/ractive")
+				.modal-dialog
+					.modal-content
+						.modal-header
+							button.close(data-dismiss="modal")
+								span(aria-hidden="true") &times;
+								span.sr-only Close
+							h4.modal-title שיתוף
+								br
+								small שים לב, שמחיקת שיתוף מוחקת את הפקודה במתכון\מתג המדובר
+						.modal-body
+								form.form.form-horizontal
+									fieldset
+										.form-group
+											label מתכונים
+											select.select2.noclose.form-control(value="{{m}}",multiple="multiple")
+												:ractive {{#matcons:i}}
+												option(value="{{id}}") {{name}}
+												:ractive {{/}}
+										.form-group
+											label מתגים
+											select.select2.noclose.form-control(value="{{s}}",multiple="multiple")
+												:ractive {{#switchs:i}}
+												option(value="{{id}}") {{name}}
+												:ractive {{/}}
+						.modal-footer
+							button.btn.btn-default.btn-primary.save(onclick=ev('go_share')) OK
+							button.btn(data-dismiss="modal") ביטול
+		
+		#expr
+			+rst({name:'expr',lazy:1,request:1,mapEvents:{'/cmd\\.\\.*/':'expr_update'}})
+			script#texpr(type="text/ractive")
+				form.from
+					:ractive {{#cmd}}
+					.form-group
+						label סוג שעון
+						select.form-control(value="{{type}}")
+							option(value="0") שעון רגיל
+							option(value="1") דקות לפני אירוע
+							option(value="2") דקות אחרי אירוע					
+							option(value="4") ביום הבא
+					.form-group(class="{{type=='1'||type=='2'?'':'hide'}}")
+						label אירוע
+						select.select2(value="{{zman}}")
+							:ractive {{#if(!zman)}}							
+							option(value="")
+							:ractive {{/if}}
+							:ractive {{#~/times:i}}
+							option(value="{{id}}") {{name}}
+							:ractive {{/times}}
+					.form-group
+						label {{type=='0'?'שעון':'דקות'}}
+						.input-group.datetimepicker.time(style="width:100%")
+							input.form-control(value="{{time}}")
+							span.input-group-addon
+								i.glyphicon.glyphicon-time
+					:ractive {{/cmd}}
+		+dlg('new_tmp','new_tmp')
+		.modal.fade#new_tmp
+			script#tnew_tmp(type="text/ractive")
+				.modal-dialog
+					.modal-content
+						.modal-header
+							button.close(data-dismiss="modal")
+								span(aria-hidden="true") &times;
+								span.sr-only Close
+							h4.modal-title פקודות חד פעמיות
+								br
+								small 
+									| חובה לציין טווח זמנים מופרד במקף
+									br
+									| אפשר לציין רק זמני פעילות או רק זמני אי פעילות
+									br
+									b שים לב שזמנים אלו גוברים על הגדרות המתכון הרגיל
+								
+						.modal-body
+								form.form.form-horizontal
+									fieldset
+										.form-group
+											.col-md-3
+												label.control-label תאריך
+											.col-md-8
+												.input-group
+													input.form-control(readonly='readonly',value="{{date}}")
+										.form-group
+											.col-md-3
+												label.control-label זמני פעילות
+											.col-md-9
+												.input-group.ltr(style='width:100%')
+													input.form-control(value="{{start}}")												
+										.form-group
+											.col-md-3
+												label.control-label זמני אי פעילות
+											.col-md-9
+												.input-group.ltr(style='width:100%')
+													input.form-control(value="{{end}}")
+										.form-group
+											.col-md-3
+												label מתגים
+											.col-md-9
+												.input-group
+													select.select2.noclose.form-control(value="{{s}}",multiple="multiple")
+														:ractive {{#switchs:i}}
+														option(value="{{id}}") {{name}}
+														:ractive {{/}}
+													span.input-group-addon
+														.inp_btn(onclick=ev('tmp_select_all','all'))
+															div
+																i.glyphicon.glyphicon-check 
+															div הכל
+													span.input-group-addon
+														.inp_btn(onclick=ev('tmp_select_all','none'))
+															div
+																i.glyphicon.glyphicon-unchecked
+															div איפוס
+						.modal-footer
+							button.btn.btn-default.btn-primary.save(onclick=ev('go_new_tmp')) OK
+							button.btn(data-dismiss="modal") ביטול
+		+dlg('new_cmd','new_cmd')
+		.modal.fade#new_cmd
+			script#tnew_cmd(type="text/ractive")
+				.modal-dialog
+					.modal-content
+						.modal-header
+							button.close(data-dismiss="modal")
+								span(aria-hidden="true") &times;
+								span.sr-only Close
+							h4.modal-title 
+								| הוספת פקודות							 
+								br
+								small
+									| ניתן לציין רצף של פקודות במבנה הבא: שעת הפעלה - שעת כיבוי, שעת הפעלה - שעת כיבוי, וכו'
+									br
+									| בין הפעלה לכיבוי יש לעשות סימן מקף (-)
+									br
+									| לדוגמה 
+									span.ltr(style='color:black;display: inline-block;')  8-10:30 11:30-12 14-19:30
+									br
+									| להפעלה בודדת יש לכתוב את השעה ללא סימון נוסף
+									br
+									| להוספת כיבוי בלבד יש לכתוב את השעה עם מקף (-) לפניה
+						.modal-body
+								form.form.form-horizontal
+									.form-group
+										.col-md-2
+											label.control-label ימים
+										.col-md-10
+											.fixed(section="days",style='position:relative;padding-right:10px')
+												span.reset_days(onclick=ev("edit_days"),style="right:-3px;top:0") ×
+												span.btn.btn-xs.btn-default(d=6,class="{{daysc[6]==1?'btn-primary':''}}") א
+												span.btn.btn-xs.btn-default(d=5,class="{{daysc[5]==1?'btn-primary':''}}") ב
+												span.btn.btn-xs.btn-default(d=4,class="{{daysc[4]==1?'btn-primary':''}}") ג
+												span.btn.btn-xs.btn-default(d=3,class="{{daysc[3]==1?'btn-primary':''}}") ד
+												span.btn.btn-xs.btn-default(d=2,class="{{daysc[2]==1?'btn-primary':''}}") ה
+												span.btn.btn-xs.btn-default(d=1,class="{{daysc[1]==1?'btn-primary':''}}") ו
+												span.btn.btn-xs.btn-default(d=0,class="{{daysc[0]==1?'btn-primary':''}}") ש											
+									.form-group
+										.col-md-2
+											label.control-label שעות
+										.col-md-10
+											.input-group.ltr(style='width:100%')
+												input.form-control(value="{{times}}")
+						.modal-footer
+							button.btn.btn-default.btn-primary.save(onclick=ev('go_new_cmd')) OK
+							button.btn(data-dismiss="modal") ביטול
+		+dlg('select_date','select_date')
+		.modal.fade#select_date
+			script#tselect_date(type="text/ractive")
+				.modal-dialog
+					style.
+						
+						.cal.date {display:inline-block;float:right;width:200px;text-align:center;padding-top:5px}
+						.cal_move .btn{border:0;color:gray;opacity:0.5}
+						.cal_move .btn:hover{opacity:1}
+						.cal_move {color:gray}
+						.tcal {cursor: default;}
+						.tcal>tbody>tr>td {width:100px;height:90px;padding:0}
+						.tcal th {font-weight:normal}
+						.tcal .info {position:relative;height:90px;}
+						.tcal .info:hover .back {box-shadow: 2px 2px 3px black}
+						.tcal .iday_info {top: 45%;    position: relative;    font-size: 75%;    text-align: center;    color: #3F51B5;    font-weight: bold;}
+						.tcal .iday {position:absolute;top:5px;left:5px;text-align:left}
+						.tcal .d {color1:#03A9F4;font-weight:bold}
+						.tcal .hday .d {color1:#E91E63}
+						.tcal .hday {right:5px;left:auto;text-align:right}
+						.tcal .month {font-size:76%}
+						.tcal .matcon {position:absolute;bottom:10px;right:8px;font-size:80%}
+						.tcal .back {position:absolute;left:2px;top:2px; width:96px;height:86px;border-radius:3px;box-shadow: 2px 2px 3px #888888;
+							border: 1px solid #888888;opacity: 0.8}
+					.modal-content(style='width:750px')
+						.modal-header
+							button.btn.btn-default.btn-primary(style="position:absolute;left:10px;top:10px",data-dismiss="modal") סגור						
+							//--button.close(data-dismiss="modal")
+								span(aria-hidden="true") &times;
+								span.sr-only Close							
+							.modal-title(style='height:27px')
+								.col-xs-3
+									//--b לוח שנה
+								.col-xs-8
+									.btn-group.cal_move									
+										.btn.btn-sm.btn-default(onclick=ev('cal_move','prevy'))
+											.i.glyphicon.glyphicon-fast-forward
+										.btn.btn-sm.btn-default(onclick=ev('cal_move','prevm'))
+											.i.glyphicon.glyphicon-forward
+										.cal.date {{cal_date}}
+										.btn.btn-sm.btn-default(onclick=ev('cal_move','nextm'))
+											.i.glyphicon.glyphicon-backward
+										.btn.btn-sm.btn-default(onclick=ev('cal_move','nexty'))
+											.i.glyphicon.glyphicon-fast-backward
+										
+								
+						.modal-body							
+							table.tcal
+								thead
+									tr.centered(style="height:40px")
+										th א
+										th ב
+										th ג
+										th ד
+										th ה
+										th ו
+										th שבת
+								tbody
+									:ractive {{#weeks}}
+									tr
+										:ractive {{#.}}
+										td
+											:ractive {{#if gmon}}
+											.info(date="{{date}}")
+												.back(style="background-color:#{{~/matcons[matcon].color}}")											
+												.iday 
+													.d {{gday}}
+													.month {{gmon}}
+												.iday.hday 
+													.d {{hday}}
+													.month {{hmon}}	
+												.iday_info
+													.day1 {{day1}}
+													.day2 {{day2}}
+												.matcon
+													:ractive {{#if hand=='1'}}
+													i.glyphicon.glyphicon-hand-left
+													span &nbsp;
+													:ractive {{/if}}
+													| {{~/matcons[matcon].name}}
+											:ractive {{/if}}	
+										:ractive {{/.}}
+									:ractive {{/weeks}}
+						//-.modal-footer
+							button.btn.btn-default.btn-primary(data-dismiss="modal") סגור						
+		

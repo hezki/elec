@@ -1,0 +1,55 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){		
+			$('.offcanvas-btn').css('position','absolute');
+		});
+		$$.on('data.summer.request',function(){
+			if(!$$.data["summer"])$$.emit("data.summer.refresh");
+		});
+		$$.on('data.summer.refresh',function(params){
+			if(!params)params={};
+			$$.data["summer"]=Yes.server({localy:1,cmd:"list",type:"summer"});	
+			$$.emit("data.summer.refreshed",$$.data["summer"]);	
+		});
+		$$.on('data.summer.update',function(d,all){
+			var res=Yes.server({localy:1,cmd:'upd',type:'summer',data:d});
+			$$.emit('data.summer.updated',res,all);
+		});
+		$$.on('data.summer.add',function(){
+			bootbox.prompt('שנה',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'summer',data:{year:r}});
+				$$.emit('data.summer.added',res);				
+			});
+		});
+		
+		
+block main
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - שעון קיץ
+			.col-md-8.col-md-offset-1
+				blockquote
+					-var cols=[]											
+					-cols.push({ "title": "שנה",data:"year",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "מתאריך",data:"begin",edit:1,type:"date"})
+					-cols.push({ "title": "עד תאריך",data:"end",edit:1,type:"date"})
+					
+					-var opt={name:'summer',columns:cols,no_std:1,btns:{'הוספה':'data.summer.add','space':''}}
+					+grid(opt)
+				
+				
+				
+
+block dialogs
+	#matle(role='dialog')

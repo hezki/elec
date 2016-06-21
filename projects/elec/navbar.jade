@@ -1,0 +1,37 @@
+.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
+	.pull-right
+		button.navbar-toggle(type='button', data-toggle='offcanvas',data-canvas="body", data-target='.offcanvas',style='display:block;top:17px;right:10px;margin:5px;border:0')		
+			span.icon-bar
+			span.icon-bar
+			span.icon-bar
+.navmenu.navmenu-default.navmenu-fixed-right.offcanvas(role='navigation')
+	-local.nav=0
+		a.navmenu-brand(href='#') #{C.TITLE}
+		ul.nav.navmenu-nav#navbar
+			li
+				a(href='/#{local.path}/') סטטוס
+			li
+				a(href='/#{local.path}/copy') שכפול
+			li
+				a(href='/#{local.path}/matcons') מתכונים
+			li
+				a(href='/#{local.path}/rules') כללים
+			li
+				a(href='/#{local.path}/switchs') מתגים
+			li
+				a(href='/#{local.path}/summer') שעון קיץ
+			li
+				a(href='/#{local.path}/settings') הגדרות
+			li
+				a(href='/#{local.path}/times') זמני היום
+			li
+				a(href='/#{local.path}/bak') יצירת גיבוי
+				
+				
+				
+				
+				
+				
+				
+				
+				

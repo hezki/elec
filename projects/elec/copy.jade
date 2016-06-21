@@ -1,0 +1,263 @@
+extends ../layout
+block libs
+	-libs='@base@,select2'
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		var main,mrst;
+		$$.on('window.ready.after',function(){		
+			mrst=$$.rsts.copy;
+			main=mrst.data;
+			main.units=Yes.arr2obj(Yes.server({cmd:'rst',q:'zmanim',f:'base as id,name'}),'id');
+			$.fn.select2.defaults.set('allowClear',true);
+			$.fn.select2.defaults.set('templateResult',function(d){
+				if(!d.element)return d.text;
+				//console.log(d.element.outerHTML);
+				return d.element.innerHTML.substr(0,1)=='<'?$(d.element.innerHTML):d.text;
+			});
+			
+			$.fn.select2.defaults.set('templateSelection',function(d){
+				if(!d.element)return d.text;
+				//console.log(d.element.outerHTML);
+				return d.element.innerHTML.substr(0,1)=='<'?$(d.element.innerHTML):d.text;
+			});
+			$('.offcanvas-btn').css('position','absolute');	
+			var x=$$.data.grps=Yes.server({localy:1,cmd:'list',type:'grps'});			
+			$$.rsts.grps.set('grps',x);
+			var x=Yes.ls('def');
+			if(x && x.grp){$$.emit('grp',x.grp);}
+		});
+		$$.on('grp',function(v){
+			if(v)Yes.ls('def',$.extend(Yes.ls('def'),{grp:v}));
+			$$.rsts.grps.set('grp',v);
+			$('#copy').closest('.hide').removeClass('hide');
+			
+			var s=Yes.server({localy:1,cmd:'list',type:'switchs',grp:v});
+			var m=Yes.server({localy:1,cmd:'list',type:'matcons',grp:v});
+			mrst.set({matcons:m,switchs:s});
+			mrst.set({m:[],s:[],tm:[],ts:[]});
+		});
+		$$.on('edit',function(v,old,keypath,p){
+			var k=keypath.split('.');
+			console.log(k,v);
+		});
+		var last='';
+		$$.on('select',function(){
+			if(main.m.length>1){
+				$('.tm').hide();
+			}else $('.tm').show();
+			if(main.s.length>1){
+				$('.ts').hide();
+			}else $('.ts').show();
+			if(main.m.length==1&&main.s.length==1){
+				if(last!=main.m[0]+'_'+main.s[0]){
+					var x=Yes.server({localy:1,cmd:'list',type:'cmds',m:main.m[0],s:main.s[0]});
+					x.forEach(function(d){
+						if(d.zman && main.units[d.zman])d.zman=main.units[d.zman].name;
+						d.time=d.time.split(':').slice(0,2).join(':');					
+						d.daysc=parseInt(parseInt(d.days).toString(2)).pad(7).split('')
+					});
+					x.sort(function(a,b){
+						var x=(a.type==4?1:0)-(b.type==4?1:0);
+						if(x)return x;
+						x=b.daysc.filter(function(d){return d=='1'}).length-a.daysc.filter(function(d){return d=='1'}).length;
+						if(x)return x;
+						x=parseInt(a.days)-parseInt(b.days);
+						if(x)return x;
+						if(a.time==b.time)return 0;
+						return a.time>b.time?1:-1;
+					});
+					x.forEach(function(d){
+						var i=[];
+						if(d.action==0)i.push('לא פעיל ('+(d.last==1?'הפעלה':'כיבוי')+')');
+						else i.push(d.action==1?'הפעלה':'כיבוי');
+						switch(d.type){
+							case 0:
+								i.push('בשעה '+d.time);
+								break;
+							case 1:
+								i.push(d.time+' לפני '+d.zman);
+								break;
+							case 2:
+								i.push(d.time+' אחרי '+d.zman);
+								break;
+							case 4:
+								i.push(d.time+' ביום הבא');
+								break;
+						};
+						var dy=parseInt(parseInt(d.days).toString(2)).pad(7);
+						if(dy!='1111111'){
+							dy=dy.split('');
+							dh='שוהדגבא'.split('');
+							dy.forEach(function(q,qi){if(q=='0')dh[qi]=''});							
+							i.push('[בימים: '+dh.filter(function(h){return h}).reverse().join(',')+']');
+						}
+						d.desc=i.join(' ');
+					});
+					mrst.set('cmds',x);
+					mrst.set('c',[]);
+					last=main.m[0]+'_'+main.s[0];
+				}
+				$('.c').show();				
+			}else $('.c').hide();
+		});
+		$$.on('copy',function(){
+			Yes.stop();
+			if(main.m.length==0)Yes.err('חובה לבחור ממתכון');
+			if(main.s.length==0)Yes.err('חובה לבחור ממתג');
+			if(main.m.length>1 && main.s.length>1)Yes.err('לא ניתן לבחור גם יותר ממתכון אחד וגם יותר ממתג אחד');
+			var d={matcon_src:main.m,switch_src:main.s,switch_trg:main.ts,matcon_trg:main.tm};
+			if(main.m.length==1 && main.s.length==1 && main.c.length)d.ids=main.c;
+			Yes.server({cmd:'copy',data:d});
+			toastr.info('העתקה הסתיימה');
+			$$.emit('grp',$$.rsts.grps.data.grp);
+		});
+		$$.on('select_all',function(t){
+			var p=$('select',$(event.srcElement).closest('.input-group'));
+			var x=$('option',p);
+			if(t=='all'){
+				x.prop("selected","selected");
+			}else if(t=='none'){
+				x.removeAttr("selected");
+			};
+			p.trigger('change');
+		});
+block init_style
+	:css
+		.input-group-addon{font-size: 70%;border: 0;background-color: transparent;}
+		.input-group-addon:last-child {border:0}
+		.inp_btn {color:gray;cursor:pointer;padding: 3px 6px;border-radius:2px}
+		.inp_btn:not(:active) {transition: background-color 200ms step-end;}
+		.inp_btn:active {background: silver;}
+		.inp_btn:hover {color:black;}
+		
+block main
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - שכפול פקודות
+			.col-md-2
+				#grps
+					+rst({name:'grps',lazy:1,request:1})
+					script#tgrps(type="text/ractive")
+						ul.nav.nav-stacked.nav-pills
+							:ractive {{#grps}}
+							li(data-toggle='collapse',class="{{id==~/grp?'active':''}}")
+								a(href='#',cal='{{id}}',onclick!='$$.emit(\'grp\',\'{{id}}\')') 
+									span {{name}}
+							:ractive {{/}}				
+			.col-md-8.hide
+				p.help-block ניתן לבחור כמה מתכונים או כמה מתגים יחד אבל לא ניתן לבחור בו זמנית גם יותר ממתג אחד וגם יותר ממתכון אחד.
+					br
+					| אם בוחרים מתג יחיד ומתכון יחיד אזי ניתן לבחור את הפקודות שיועתקו במפורט
+					br
+					| אם בוחרים יותר ממתכון אחד, ההעתקה תהיה למתכון זהה במתג היעד
+					br
+					| אם בוחרים יותר ממתג אחד, ההעתקה תהיה למתג זהה במתכון היעד
+				form.form.form-horizontal#copy
+					+rst({name:'copy',lazy:1,request:1,mapEvent:{'/\\.*/':'edit'}})
+					script#tcopy(type="text/ractive")
+						.form-group.m
+							label.control-label.col-md-2 ממתכונן\ים
+							.col-md-6
+								.input-group
+									select.select2.form-control.noclose(multiple="multiple",value="{{m}}",onchange=ev('select'))
+										:ractive {{#matcons:i}}
+										option(value="{{id}}") {{name}}
+										:ractive {{/matcons}}
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','all'))
+											div
+												i.glyphicon.glyphicon-check 
+											div הכל
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','none'))
+											div
+												i.glyphicon.glyphicon-unchecked
+											div איפוס
+						.form-group.s
+							label.control-label.col-md-2 ממתג\ים
+							.col-md-6
+								.input-group
+									select.select2.noclose(multiple="multiple",value="{{s}}",onchange=ev('select'))
+										:ractive {{#switchs:i}}
+										option(value="{{id}}") {{name}}
+										:ractive {{/switchs}}
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','all'))
+											div
+												i.glyphicon.glyphicon-check 
+											div הכל
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','none'))
+											div
+												i.glyphicon.glyphicon-unchecked
+											div איפוס
+						.form-group.hide.c
+							label.control-label.col-md-2 פקודות להעתקה
+							.col-md-6
+								.input-group
+									select.select2.noclose(multiple="multiple",value="{{c}}")
+										:ractive {{#cmds:i}}
+										option(value="{{id}}") {{desc}}
+										:ractive {{/cmds}}
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','all'))
+											div
+												i.glyphicon.glyphicon-check 
+											div הכל
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','none'))
+											div
+												i.glyphicon.glyphicon-unchecked
+											div איפוס
+						.form-group.tm
+							label.control-label.col-md-2 העתק למתכון\ים
+							.col-md-6
+								.input-group
+									
+									select.select2.noclose(multiple="multiple",value="{{tm}}",onchange=ev('select'))
+										:ractive {{#matcons:i}}
+										option(value="{{id}}") {{name}}
+										:ractive {{/matcons}}
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','all'))
+											div
+												i.glyphicon.glyphicon-check 
+											div הכל
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','none'))
+											div
+												i.glyphicon.glyphicon-unchecked
+											div איפוס
+						.form-group.ts
+							label.control-label.col-md-2 העתק למתג\ים
+							.col-md-6
+								.input-group
+									select.select2.noclose(multiple="multiple",value="{{ts}}",onchange=ev('select'))
+										:ractive {{#switchs:i}}
+										option(value="{{id}}") {{name}}
+										:ractive {{/switchs}}
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','all'))
+											div
+												i.glyphicon.glyphicon-check 
+											div הכל
+									span.input-group-addon
+										.inp_btn(onclick=ev('select_all','none'))
+											div
+												i.glyphicon.glyphicon-unchecked
+											div איפוס
+						br
+						.form-group
+							.col-md-offset-2
+								button.btn.btn-lg.btn-primary(onclick=ev('copy')) בצע העתקה
+block dialogs
+	#matle(role='dialog')

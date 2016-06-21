@@ -1,0 +1,72 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){		
+			$('.offcanvas-btn').css('position','absolute');	
+			$$.data.igul={"0":"עגול לקרוב","1":"לדקה קודמת","2":"לדקה הבאה"};
+			var x=$$.data.base={};
+			Yes.server({cmd:'times_base_rst',date:Yes.dt2str('yyyy-MM-dd',new Date())}).forEach(function(d){
+				x[d.id]=d.he;
+			});
+			$$.emit("data.times.refresh");
+		});
+		$$.on('data.times_base_rst.request',function(){			
+		});
+		$$.on('data.times.refresh',function(params){
+			if(!params)params={};
+			var x=Yes.server({cmd:"zmanim_rst",date:Yes.dt2str('yyyy-MM-dd',new Date())});			
+			$$.emit("data.times.refreshed",x);	
+		});
+		$$.on('data.times.update',function(d,all){
+			var res=Yes.server({localy:1,cmd:'upd',type:'times',data:d});
+			var x=Yes.server({cmd:"zmanim_rst",date:Yes.dt2str('yyyy-MM-dd',new Date()),id:res.id});			
+			res.zman=x[0].zman;
+			$$.emit('data.times.updated',res,all);
+		});
+		$$.on('data.times.add',function(){
+			bootbox.prompt('כנוי במערכת',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'times',data:{name:r}});
+				$$.emit('data.times.added',res);				
+			});
+		});
+		$$.on('data.times.del',function(){
+			var g=$$.grids.times;
+			var d=g.last(),tr=g.lastRow();
+			if(!d)Yes.err('בחר שורה');			
+			bootbox.confirm('<b>שים לב!!</b> יימחקו כל הפקודות המבוססות על זמן זה, האם אתה בטוח?',function(r){
+				if(!r)return;
+				Yes.server({localy:1,cmd:'del',tbl:'times',id:d.id});
+				g.row(tr).remove().draw();
+			});
+		});
+		
+block main
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - זמני היום
+			.col-md-10
+				blockquote
+					-var cols=[]											
+					-cols.push({ "title": "כנוי במערכת",data:"name",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "מבוסס על חישוב",data:"base",edit:1,lookup:'data.base'})
+					-cols.push({ "title": "עיגול",data:"igul",edit:1,type:"int",lookup:'data.igul'})
+					-cols.push({ "title": "תוספת דקות",data:"add",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "תוצאה",data:"zman",edit:0,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "סדר",data:"ord",edit:10,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					
+					-var opt={name:'times',columns:cols,no_std:1,selectRow:1,btns:{'הוספה':'data.times.add','מחיקה':'data.times.del','space':''}}
+					+grid(opt)
+				
+	
+block dialogs
+	#matle(role='dialog')

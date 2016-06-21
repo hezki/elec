@@ -1,0 +1,143 @@
+-var DEBUG=1;
+//- -if(!local.on)local.on=[]
+-if(!local.js)local.js=[]
+//-var ondata=function(name,func){
+//-  local.on.push(['data.'+name+'.request','function(){if(!$$.data["'+name+'"])$$.emit("data.'+name+'.refresh")}'])
+//-  local.on.push(['data.'+name+'.refresh','function(params){$$.data["'+name+'"]='+func.toString()+'(params?params:{});\n$$.emit("data.'+name+'.refreshed",$$.data["'+name+'"])}'])
+//-}
+-var on=function(e,f,m){local.on.push([e,f,m])};
+
+
+mixin back()
+	a.btn.btn-lg.btn-none(href="",onmousedown='goback()')
+		span.icon-arrow-right-12
+
+mixin dlg()
+	-var opt=args(arguments,{},['name','rst'])
+	-var o1=extend({},opt)
+	-delete o1.name;delete o1.rst;
+	-on('window.ready.after','function(){new_dlg("'+opt.name+'","'+opt.rst+'",'+jsonf(o1)+')}')
+mixin rst()
+	-var opt=args(arguments,{lazy:1},['name','mapEvents','lazy','dataEvent','request'])	
+	//-on('window.ready.after','function(){new_rst("'+opt.name+'",'+jsonf(opt.mapEvents)+','+(opt.lazy?1:0)+(opt.dataEvent?',"'+opt.dataEvent+'"':'')+')}')
+	-on('window.ready.after','function(){new_rst('+jsonf(opt)+')}');
+	-if(opt.request)on('window.ready.after','function(){$$.emit("data.'+opt.name+'.request")}');
+	-var d=opt.row||opt.data||opt.rows;
+	//-if(d)on('window.ready.after','function(){$$.emit("data.'+opt.name+'.refreshed",'+jsonf(d)+')}')
+	-if(d)on('window.ready.after','function(){$$.emit("data.'+opt.name+'.refreshed",'+jsonf(d)+','+(opt.data?1:0)+')}')
+mixin btn()
+	-var opt=args(arguments,{inline:0},['id','title','click','form']);
+	-if(opt.form)opt.inline=1;
+	.form-group
+		label.control-label(class='#{opt.inline?"col-md-3":""}') #{opt.label}
+		div(class='#{opt.inline?"col-md-6":""}')
+			button.btn.btn-default(id='#{opt.id}',onclick='#{opt.click}')&attributes(attributes) #{opt.title}
+			
+mixin btnl()
+	-var opt=args(arguments,{inline:1},['id','title','click','form']);
+	+btn(opt)&attributes(attributes)
+	
+mixin input()
+	-var opt=args(arguments,{inline:0,rst:1,combobox:1},['name','title','dataFld','rst']);
+	-var vname=opt.dataFld?opt.dataFld:opt.name,srcvname=vname;
+	-if(opt.date)vname='dt2str(\'yyyy-MM-dd\','+vname+')';
+	-if(opt.datetime)vname='dt2str(\'yyyy-MM-dd hh:mm\','+vname+')';
+	-if(opt.time)vname='dt2str(\'hh:mm\','+vname+')';
+	-var inp_class=(opt.req?'require':'')+' '+(opt.class?opt.class:'');
+	-if(opt.label_width && !opt.div_width)opt.div_width=12-opt.label_width;
+	-if(opt.div_width && !opt.label_width)opt.label_width=12-opt.div_width;
+	-var label_width='col-md-'+(opt.label_width?opt.label_width:'5');
+	-if(!opt.inline && !opt.label_width)label_width='';
+	-var div_width='col-md-'+(opt.div_width?opt.div_width:'7');
+	-if(!opt.inline && !opt.div_width)div_width='';
+	-var limit="limit" in opt && !opt.limit?0:1;		
+	-var a={};
+	-if(opt.multi){a.multiple='multiple';opt.combobox=0;}
+	-a['data-placeholder']=opt.title;a['placeholder']=opt.title;
+	-if(opt.inplace){a['data-placeholder']=opt.title;a['placeholder']=opt.title;div_width=opt.div_width?div_width: 'col-md-12';}
+	-if(opt.rst && opt.combobox && opt.lookup && typeof(opt.lookup)=='string' && limit){a.lookup=opt.lookup;a.lookup_id=opt.lookup_id||'_id';a.lookup_fld=opt.lookup_fld||'t';}
+	.form-group(class=opt.class?opt.class:'')
+		-if(!opt.inplace)
+			label.control-label(for='#{opt.name}',class=label_width) !{opt.title}
+		div(class=div_width)
+			.input-group
+				-if(opt.lookup){
+					//- span(style='display:none',class="#{opt.name}_hide",data="{{#{vname}}}")
+					-if(opt.combobox)inp_class+=' combobox';
+					-if(opt.multiselect)inp_class+=' multiselect';
+					-if(opt.select2)inp_class+=' select2';
+					//-if(opt.combobox && opt.require)inp_class+=' combobox-require';
+					//-if(opt.multi)inp_class+=' multiselect';
+					select.input-sm.form-control(id='#{opt.name}',class=inp_class,name='#{opt.name}',value='{{#{vname}}}',no-limit='#{limit}')&attributes(attributes)&attributes(a)
+						-if(!opt.multi)
+							option(value="")
+						-if((opt.combobox||opt.multiselect||opt.select2) && typeof(opt.lookup)=='string'){
+							:ractive {{##{srcvname}}}<option value="{{#{vname}}}">{{#{vname}}}</option>{{/#{srcvname}}}
+						-}
+						-if(typeof(opt.lookup)=='string'){
+							-if(opt.select2 || opt.multiselect)
+								:ractive {{##{opt.lookup}:_id}}<option value="{{#{opt.lookup_id||'_id'}}}">{{#{opt.lookup_fld||'t'}}}</option>{{/#{opt.lookup}}}
+							-if(!(opt.combobox && opt.lookup && limit)){								
+								:ractive {{##{opt.lookup}:_id}}<option value="{{#{opt.lookup_id||'_id'}}}">{{#{opt.lookup_fld||'t'}}}</option>{{/#{opt.lookup}}}
+							-}
+						-}else{
+							-if(opt.lookup instanceof Array){
+								each val in opt.lookup
+									option(value="#{val}") #{val}
+							-}else{
+								each val,index in opt.lookup
+									option(value="#{index}") #{val}
+							-}
+						-}
+					block
+				-}else if(opt.multiline){
+					textarea.form-control(spellcheck="false",id='#{opt.name}',value=opt.rst?"{{#{vname}}}":"",class=inp_class)&attributes(attributes)&attributes(a)
+					block
+				-}else{
+					-if(opt.date||opt.datetime||opt.time){
+						.input-group.datetimepicker(class=opt.datetime?'datetime':opt.time?'time':'date')
+							input.input-sm.form-control(id='#{opt.name}',spellcheck="false",value=opt.rst?"{{#{vname}}}":"",toway="false",data-fld=srcvname,class=opt.req?'require':'',onchange=opt.rst?"Yes.update_date(this)":"")&attributes(attributes)&attributes(a)
+							span.input-group-addon
+								i.glyphicon(class=opt.time?'glyphicon-time':'glyphicon-th')
+						block
+					-}else{
+						input.input-sm.form-control(id='#{opt.name}',spellcheck="false",value=opt.rst?"{{#{vname}}}":"",class=inp_class)&attributes(attributes)&attributes(a)
+						block
+					-}
+				-}
+			p.help-block(id='#{opt.name}.help') #{opt.help}
+			
+mixin inputl()
+	-var opt=args(arguments,{inline:1},['name','title','dataFld']);
+	+input(opt)&attributes(attributes)
+	
+mixin textarea()
+	-var opt=args(arguments,{multiline:1},['name','title','dataFld']);
+	+input(opt)&attributes(attributes)
+
+mixin textareal()
+	-var opt=args(arguments,{inline:1,multiline:1},['name','title','dataFld']);
+	+input(opt)&attributes(attributes)
+	
+mixin grid()
+	-var opt=args(arguments,{columns:[]},['name','columns']);
+	-for(var i=0;i<opt.columns.length;i++){
+	-	opt.columns[i]=args(opt.columns[i] instanceof Array?opt.columns[i]:[opt.columns[i]],{title:'fld'+i},['title','data','render']);
+	-}
+	table.table.table-striped1.table-hover.table-bordered(id='#{opt.name}')&attributes(attributes)
+	-var name=opt.name;	
+	-on('window.ready.after',"function(){new_grid('"+name+"',"+jsonf(opt)+");}")
+	//-local.push('ready',strf("function(){new_grid('"+name+"',"+jsonf(opt)+","+link+");}"));
+	
+mixin combo()
+	-var opt=args(arguments,{},['name','title','lookup','data']);
+	-var vname=opt.dataFld?opt.dataFld:'row.'+opt.name,srcvname=vname;
+	.form-group
+		label.col-md-3.control-label(for='#{opt.name}') #{opt.title}
+		.col-md-6
+			select.input-sm.form-control(id='#{opt.name}',class=opt.req?'require':'',name='#{opt.name}',value='{{#{vname}}}')&attributes(attributes)
+				option(value="")
+				:ractive {{##{opt.lookup}:code}}{{#.}}
+				option(value="{{code}}") {{t}}
+				:ractive {{/.}}{{/#{opt.lookup}}}
+			p.help-block(id='#{opt.name}.help')

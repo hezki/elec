@@ -1,0 +1,82 @@
+extends ../layout
+block title	
+	title #{C.TITLE}
+block navbar	
+	include navbar
+
+block head
+	script(src='/bootstrap-3.0.0/dist/js/bootstrap-offcanvas.js')
+
+block init
+	:js
+		$$.on('window.ready.after',function(){		
+			$('.offcanvas-btn').css('position','absolute');
+			var x=$$.data.grps=Yes.server({localy:1,cmd:'list',type:'grps'});			
+			$$.rsts.grps.set('grps',x);
+			if(x && x.grp){$$.emit('grp',x.grp);}			
+		});
+		$$.on('grp',function(v){
+			if(v)Yes.ls('def',$.extend(Yes.ls('def'),{grp:v}));
+			$('#switchs').closest('.hide').removeClass('hide');
+			$$.rsts.grps.set('grp',v);
+			$$.emit('data.switchs.refresh');
+		});
+		$$.on('data.switchs.request',function(){
+			
+		});
+		$$.on('data.switchs.refresh',function(params){
+			if(!params)params={};
+			$$.data["switchs"]=Yes.server({localy:1,cmd:"list",type:"switchs",grp:$$.rsts.grps.data.grp});	
+			$$.emit("data.switchs.refreshed",$$.data["switchs"]);	
+		});
+		$$.on('data.switchs.update',function(d,all){
+			var res=Yes.server({localy:1,cmd:'upd',type:'switchs',data:d});
+			$$.emit('data.switchs.updated',res,all);
+		});
+		$$.on('data.switchs.add',function(){
+			bootbox.prompt('שם מתג',function(r){
+				if(!r)return;
+				var res=Yes.server({localy:1,cmd:'upd',type:'switchs',data:{name:r,grp:$$.rsts.grps.data.grp}});
+				$$.emit('data.switchs.added',res);				
+			});
+		});
+		$$.on('data.switchs.del',function(){
+			var d=$$.grids.switchs.last(),tr=$$.grids.switchs.lastRow();
+			if(!d)return;
+			bootbox.confirm('למחוק מתג <b>'+d.name+'</b> לחלוטין?',function(r){
+				if(!r)return;
+				Yes.server({localy:1,cmd:'del',tbl:'switchs',id:d.id});
+				$$.grids.switchs.row(tr).remove().draw();
+			});
+		});
+		
+block main
+	.container-fluid
+		.row 
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+				.navbar-brand(style='font-size:37px') מפקד החשמל - מתגים
+			.col-md-2
+				#grps
+					+rst({name:'grps',lazy:1,request:1})
+					script#tgrps(type="text/ractive")
+						ul.nav.nav-stacked.nav-pills
+							:ractive {{#grps}}
+							li(data-toggle='collapse',class="{{id==~/grp?'active':''}}")
+								a(href='#',cal='{{id}}',onclick!='$$.emit(\'grp\',\'{{id}}\')') 
+									span {{name}}
+							:ractive {{/}}				
+			.col-md-6.hide
+				blockquote
+					-var cols=[]											
+					-cols.push({ "title": "סדר",data:"ord",edit:1,type:"int"})
+					-cols.push({ "title": "שם",data:"name",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "יציאה פיזית",data:"out",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
+					-cols.push({ "title": "לא פעיל",data:"disable",edit:1,type:"checkbox"})
+					
+					-var opt={name:'switchs',selectRow:1, columns:cols,no_std:1,btns:{'הוספה':'data.switchs.add','מחיקה':'data.switchs.del','space':''}}
+					+grid(opt)
+				
+	
+	
+block dialogs
+	#matle(role='dialog')

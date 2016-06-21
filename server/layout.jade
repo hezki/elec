@@ -1,0 +1,190 @@
+-var loaded={js:{},css:{}}
+mixin lib(type,arg)
+	-var a=typeof(arg)=='string'?arg.split(','):arg
+	-if(type=='css')
+		each x in a
+			-if(!x)continue;
+			-if(x in loaded.css)continue;
+			-loaded.css[x]=1;
+			case x
+				when 'jquery'
+					link(href='/jquery/css/jquery-ui.css',rel='stylesheet')
+				when 'bootstrap'
+					+lib('css','jquery')
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap.min#{C.CSS_THEME||""}.css', rel='stylesheet')
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap-rtl.min.css', rel='stylesheet')
+					link(href='/bootstrap-3.0.0/dist/css/bootmetro-icons.css', rel='stylesheet')
+				when 'select'
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap-select.min.css', rel='stylesheet')
+				when 'select2'
+					link(href='/select2/css/select2.css', rel='stylesheet')
+					link(href='/select2/css/select2-bootstrap.css', rel='stylesheet')
+					-on('window.ready.after','$.fn.select2.defaults.set("theme", "bootstrap");')
+				when 'multiselect'
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap-multiselect.css', rel='stylesheet')					
+				when 'combobox'
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap-combobox.css', rel='stylesheet')
+				when 'datepicker'
+					+lib('moment')
+					link(href='/bootstrap-3.0.0/dist/css/datetimepicker.css', rel='stylesheet')
+				when 'dataTables'
+					link(href='/dataTables/datatables.min.css',rel='stylesheet')
+				when 'toastr'
+					link(href='/bootstrap-3.0.0/dist/css/toastr.css',rel='stylesheet')
+				when 'jsPanel'
+					link(href='/bootstrap-3.0.0/assets/css/jsPanel.css',rel='stylesheet')
+				when 'editable'
+					link(href='/bootstrap-3.0.0/dist/css/bootstrap-editable.css',rel='stylesheet')								
+				when 'prism'					
+					link(href='/prism.css', rel='stylesheet')
+				when 'fa'
+					link(href='/fonts/font-awesome.min.css', rel='stylesheet')
+	-if(type=='js')
+		each x in a
+			-if(!x)continue;
+			-if(x in loaded.js)continue;
+			-loaded.js[x]=1;
+			case x
+				when 'ractive'
+					script(src='/ractive-0.6.1.js')
+				when 'jquery'
+					script(src='/jquery/js/jquery-1.11.1.min.js')
+					script(src='/jquery/js/jquery.scrollintoview.js')
+				when 'jqueryui'
+					script(src='/jquery/js/jquery-ui.min.js')
+				when 'bootstrap'
+					+lib('js','jquery')
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap.min.js')
+				when 'select'
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-select.min.js')
+				when 'multiselect'
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-multiselect.js')
+				when 'select2'
+					script(src='/select2/js/select2.full.js')
+				when 'combobox'
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-combobox.js')
+				when 'datepicker'
+					+lib('js','moment')
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-datetimepicker.js')
+				when 'dataTables'
+					script(src='/dataTables/datatables.js')
+				when 'toastr'
+					script(src='/bootstrap-3.0.0/dist/js/toastr.js')
+				when 'jsPanel'
+					script(src='/jquery/js/jquery.jspanel.js')
+				when 'editable'
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-editable.js')
+				when 'editabletable'
+					script(src='/bootstrap-3.0.0/dist/js/bootstrap-editabletable.js')
+				when 'socket.io'
+					script(src='/socket.io.js')
+				when 'canvas'					
+					script(src='/canvas.js')
+				when 'debug'
+					script(src='/watch.js')
+					script(src='/error-stack-parser.min.js')
+				when 'moment'
+					script(src='/bootstrap-3.0.0/assets/js/moment.js')
+					script(src='/bootstrap-3.0.0/assets/js/he.js')
+				when 'bootbox'
+					script(src='/bootstrap-3.0.0/dist/js/bootbox.min.js')
+				when 'prism'
+					+lib('js','jquery')
+					script(src="/prism.js")
+					script(src='/bililiteRange.js')
+					script(src='/bililiteRange.fancytext.js')
+					script(src='/bililiteRange.undo.js')
+				when 'fa'
+					//-
+				default
+					-throw x+' is not valid lib';
+include mixins.jade
+if ajax
+	//- doctype xml
+	:ractive ]]!>main<![[
+	block main
+	:ractive ]]!>dialogs<![[
+	block dialogs
+	:ractive ]]!>init<![[
+	-var c=local.on.get();
+	!=c.join('\n')
+	block init
+	:ractive ]]!>css<![[
+	block init_style
+	block style_init
+	//- script
+		:ractive <![CDATA[
+		block script
+		:ractive ]]>
+else
+
+	doctype html
+	html(lang='en')
+		head
+			
+			meta(charset='utf-8')
+			meta(http-equiv='X-UA-Compatible', content='IE=edge')
+			meta(name='viewport', content='width=device-width, initial-scale=1')
+			block title
+			script.
+				
+				//-localStorage.debug = 'socket.io-client:socket';
+				var DEBUG=#{DEBUG?1:0};
+				var proj_path='#{C.path}';
+			block libs
+			-var libbase='bootstrap,jquery,jqueryui,ractive,combobox,datepicker,dataTables,editabletable,toastr,bootbox,socket.io'			
+			-if(!libs)libs=libbase;else if(typeof(libs)=='string')libs=libs.replace('@base@',libbase)
+			+lib('css',libs)
+			+lib('js','jquery')
+			link(href='/yes.css',rel='stylesheet')				
+			style
+				!= include(local.path+'.css')
+			block head
+		body(role='document')
+			block navbar
+			-if(local.nav)
+				style.
+					section{
+						padding-top:40px;
+						margin-top:-40px;
+					}
+					body {padding-top: 70px;}
+			section(class='_main_page_section')
+				.container-fluid(role='main',class='_main_page')
+					block main
+			._main_dialogs
+				block dialogs
+			
+			style(type='text/css')
+				block init_style
+				block style_init
+				
+			+lib('js',libs)
+			script(src='/my.js')
+			-var datastr=data?JSON.stringify(data).replace(/\\/g,'\\\\'):'{}';
+			-var c=local.on.get();
+			script
+				:js Yes.SERVER_URL='/!{local.path}/data';
+				:js Yes.PROJ='!{local.path}';toastr.options.positionClass='toast-bottom-left';
+				:js function init_events(){
+				:js !{pertty(c.join('\n'),4)+'\n'}
+				block init
+				if local.js
+					:js !{pertty(local.js.join('\n'),4)+'\n'}
+				:js if($$ && $$.p && !$$.exists('error') && !$$.p.exists('error'))$$.p.on('error',function(x){if(toastr)return toastr.error(x.replace?x.replace('Uncaught Error:',''):x); alert(x.replace?x.replace('Uncaught Error:',''):'')});
+				:js else if(!$$.exists('error'))$$.on('error',function(x){if(toastr)return toastr.error(x.replace?x.replace('Uncaught Error:',''):x); alert(x.replace?x.replace('Uncaught Error:',''):'')});
+				:js }
+				
+			block script
+			if C.socket
+				script.
+					$$.on('window.ready.end',function(){
+						$$.socket.on('eval',function(c){
+							try{
+								console.log('eval',c);
+								eval(c);
+							}catch(e){toastr.error(e.message)}
+						}).on('disconnect',function(){
+							$$.socket.connect({'force new connection': true});
+						});					
+					});
