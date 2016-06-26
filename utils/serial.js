@@ -1,0 +1,2 @@
+if(process.chdir(__dirname+"\\..\\..\\serial"),console.log(process.cwd()),sets=JSON.parse(require("fs").readFileSync("./settings.json").toString()),sets&&sets.src)var app="..\\node.exe",args=["service.js"],cwd=".";else var app="node.exe",args=[],cwd=".";console.log(__dirname,app);var spawn=require("child_process").spawn,ps=spawn(app,args,{stdio:"inherit",detached:!1});
+//# sourceMappingURL=serial.js.map
