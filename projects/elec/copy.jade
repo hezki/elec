@@ -15,7 +15,7 @@ block init
 		$$.on('window.ready.after',function(){		
 			mrst=$$.rsts.copy;
 			main=mrst.data;
-			main.units=Yes.arr2obj(Yes.server({cmd:'rst',q:'zmanim',f:'base as id,name'}),'id');
+			main.units=Yes.arr2obj(Yes.server({cmd:'rst',q:'zmanim',f:'id,name'}),'id');
 			$.fn.select2.defaults.set('allowClear',true);
 			$.fn.select2.defaults.set('templateResult',function(d){
 				if(!d.element)return d.text;

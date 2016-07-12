@@ -1,0 +1,31 @@
+extends ../layout
+block libs
+	-libs='@base@'
+block title
+	title #{C.TITLE}
+block navbar
+	//-include navbar
+
+block init
+	:js
+		$$.on('window.ready.after',function(){});
+block init_style
+	:css
+
+block main
+	.container-fluid
+		.row
+			.page-header
+				h1
+					a(href='http://www.eid.co.il',target='_blank')
+						img(src='/projects/elec/logo.gif')
+					|  מפקד החשמל
+			.col-md-2
+			.col-md-10
+				a.btn.btn-lg.btn-link(href='/elec/login') כניסה לממשק ניהול מרוחק
+				a.btn.btn-link(target='_blank' href='http://www.eid-store.co.il/document/68388,7713,470.aspx') מידע מאתר EID
+				
+	
+block dialogs
+	#matle(role='dialog')
+

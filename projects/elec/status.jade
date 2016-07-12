@@ -658,7 +658,8 @@ block dialogs
 							border: 1px solid #888888;opacity: 0.8}
 					.modal-content(style='width:750px')
 						.modal-header
-							button.btn.btn-default.btn-primary(style="position:absolute;left:10px;top:10px",data-dismiss="modal") סגור						
+							button.btn.btn-default.btn-default(style="position:absolute;right:10px;top:10px",onclick=ev('today')) היום
+							button.btn.btn-default.btn-primary(style="position:absolute;left:10px;top:10px",data-dismiss="modal") סגור
 							//--button.close(data-dismiss="modal")
 								span(aria-hidden="true") &times;
 								span.sr-only Close

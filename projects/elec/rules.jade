@@ -1,7 +1,7 @@
 extends ../layout
-block title	
+block title
 	title #{C.TITLE}
-block navbar	
+block navbar
 	include navbar
 
 block head
@@ -13,9 +13,9 @@ block init
 			$(document).on('click','.days .btn',function(){
 				var r=$(this).closest('table').attr('id');
 				var d=$$.grids[r].data($(this).closest('td'));
-				d.daysc[$(this).attr('d')]=d.daysc[$(this).attr('d')]=='0'?'1':'0';				
+				d.daysc[$(this).attr('d')]=d.daysc[$(this).attr('d')]=='0'?'1':'0';
 				$$.emit('grid.'+r+'.update',$(this).closest('td'),parseInt(d.daysc.join(''),2));
-				//$$.emit('data.'+r+'.update',{id:d.id,days:parseInt(d.daysc.join(''),2)},d);				
+				//$$.emit('data.'+r+'.update',{id:d.id,days:parseInt(d.daysc.join(''),2)},d);
 			});
 			$('.offcanvas-btn').css('position','absolute');
 			var h=' אבגדהוזחט'.split(''),h10=' יכל'.split('');
@@ -24,7 +24,7 @@ block init
 			hd[15]='טו';
 			hd[16]='טז';
 			$$.data.lookups={hdays:hd};
-			h=',תשרי,חשון,כסלו,טבת,שבט,אדר א,אדר \\ אדר ב,ניסן,אייר,סיון,תמוז,אב,אלול'.split(',');			
+			h=',תשרי,חשון,כסלו,טבת,שבט,אדר א,אדר \\ אדר ב,ניסן,אייר,סיון,תמוז,אב,אלול'.split(',');
 			hd={};
 			for(var i=1;i<h.length;i++)hd[i]=h[i];
 			$$.data.lookups.hmon=hd;
@@ -33,12 +33,12 @@ block init
 			for(var i=1;i<h.length;i++)hd[i]=h[i];
 			$$.data.lookups.gmon=hd;
 			var x=$$.data.grps=Yes.server({localy:1,cmd:'list',type:'grps'});
-			$$.rsts.grps.set('grps',x);			
+			$$.rsts.grps.set('grps',x);
 			var x=$$.data.matcons={};
 			Yes.server({localy:1,cmd:'list',type:'matcons'}).forEach(function(d){
 				if(!x[d.grp])x[d.grp]={'0':{name:'[ללא מתכון]'}};
 				x[d.grp][d.id]=d;
-			});			
+			});
 			var x=Yes.ls('def');
 			if(x && x.grp){$$.emit('grp',x.grp);}
 		});
@@ -55,8 +55,8 @@ block init
 			});
 			$$.data["rulese"]=x[0];
 			$$.data["rulesh"]=x[1];
-			$$.emit("data.rulese.refreshed",$$.data["rulese"]);	
-			$$.emit("data.rulesh.refreshed",$$.data["rulesh"]);	
+			$$.emit("data.rulese.refreshed",$$.data["rulese"]);
+			$$.emit("data.rulesh.refreshed",$$.data["rulesh"]);
 		});
 		$$.on('data.rulesh.update',function(d,all){
 			var c=$.extend({},all,d);
@@ -98,14 +98,14 @@ block init
 			bootbox.prompt('שם כלל',function(r){
 				if(!r)return;
 				var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:{desc:r,grp:$$.rsts.grps.data.grp,cal_type:0}});
-				$$.emit('data.rulese.added',res);				
+				$$.emit('data.rulese.added',res);
 			});
 		});
 		$$.on('data.rulesh.add',function(){
 			bootbox.prompt('שם כלל',function(r){
 				if(!r)return;
 				var res=Yes.server({localy:1,cmd:'upd',type:'rules',data:{desc:r,grp:$$.rsts.grps.data.grp,cal_type:1}});
-				$$.emit('data.rulesh.added',res);				
+				$$.emit('data.rulesh.added',res);
 			});
 		});
 		$$.on('grp',function(v){
@@ -116,10 +116,13 @@ block init
 			$$.emit('data.rules.refresh');
 		});
 		window.mat_lookup_obj=function(v,obj,key){
-			return $$.data.matcons[obj.grp];			
+			return Yes.obj2arr($$.data.matcons[obj.grp]).sort(function(a,b){
+				if(a.ord!=b.ord)return a.ord-b.ord;
+				return a.name>b.name?1:(a.name<b.name?-1:0);
+			});
 		};
-		window.mat_lookup=function(v,obj,key){			
-			return $$.data.matcons[obj.grp]?$$.data.matcons[obj.grp][v]:'[מתכון לא קיים]';			
+		window.mat_lookup=function(v,obj,key){
+			return $$.data.matcons[obj.grp]?$$.data.matcons[obj.grp][v]:'[מתכון לא קיים]';
 		}
 		window.days_render=function(d,f,all){
 			//var a='אבגדהוש'.split('');
@@ -147,7 +150,7 @@ block main
 		.input_color {height:35px;width:100%}
 	.container-fluid
 		.row 
-			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')							
+			#top.navbar.navbar-default(style='padding-top:10px;padding-right:50px')
 				.navbar-brand(style='font-size:37px') מפקד החשמל - כללים
 			.col-md-2
 				#grps
@@ -169,7 +172,7 @@ block main
 						br
 				.row
 					h2 כללי לוח עברי
-					-var cols=[]											
+					-var cols=[]
 					-cols.push({ "title": "רמה",data:"ord",edit:1,type:"",render:function(d,f,a){return f=='sort'?ord_render(a,'ord'):d}})
 					-cols.push({ "title": "שם",data:"desc",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
 					-cols.push({ "title": "מיום",data:"begin_d",edit:1,type:"int",lookup:'data.lookups.hdays',render:function(d,f){return '<span>'+d+'</span>'}})
@@ -177,13 +180,16 @@ block main
 					-cols.push({ "title": "עד יום",data:"end_d",edit:1,type:"int",lookup:'data.lookups.hdays',render:function(d,f){return '<span>'+d+'</span>'}})
 					-cols.push({ "title": "חודש",data:"end_m",edit:1,type:"int",lookup:'data.lookups.hmon',render:function(d,f,a){return f=='sort'?ord_render(a,'em'):d}})
 					-cols.push({ "title": "ימי פעילות",data:"days",edit:0,type:"",render:":func:days_render"})
-					-cols.push({ "title": "מתכון",data:"params",edit:1,type:"int",lookup:{src:'data.lookups.matcons',fld:'name',lookup:":func:mat_lookup",lookup_obj:":func:mat_lookup_obj"},render:function(d,f){return '<span>'+d+'</span>'}})
+					-
+						cols.push({ "title": "מתכון",data:"params",edit:1,type:"int",
+						lookup:{src:'data.lookups.matcons',fld:'name',id:'id',lookup:":func:mat_lookup",lookup_obj:":func:mat_lookup_obj"},
+						render:function(d,f){return '<span>'+d+'</span>'}})
 					
 					-var opt={name:'rulesh',columns:cols,no_std:1,selectRow:1,btns:{'הוספה':'data.rulesh.add','מחיקה':'data.rulesh.del','space':''}}
-					+grid(opt)			
+					+grid(opt)
 				.row
 					h2 כללי לוח לועזי
-					-var cols=[]											
+					-var cols=[]
 					-cols.push({ "title": "רמה",data:"ord",edit:1,type:"",render:function(d,f,a){return f=='sort'?ord_render(a,'ord'):d}})
 					-cols.push({ "title": "שם",data:"desc",edit:1,type:"",render:function(d,f){return '<span>'+d+'</span>'}})
 					-cols.push({ "title": "מיום",data:"begin_d",edit:1,type:"int",render:function(d,f){return '<span>'+d+'</span>'}})
