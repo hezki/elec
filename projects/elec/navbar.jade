@@ -6,7 +6,7 @@
 			span.icon-bar
 .navmenu.navmenu-default.navmenu-fixed-right.offcanvas(role='navigation')
 	-local.nav=0
-		a.navmenu-brand(href='#') #{C.TITLE}
+		a.navmenu-brand(href='#',onclick=ev('socket_test')) #{C.TITLE}
 		ul.nav.navmenu-nav#navbar
 			li
 				a(href='/#{local.path}/') סטטוס
@@ -26,12 +26,10 @@
 				a(href='/#{local.path}/times') זמני היום
 			//-li
 				a(href='/#{local.path}/bak') יצירת גיבוי
-				
-				
-				
-				
-				
-				
-				
-				
-				
+			script.
+				$(window).ready(function(){
+					$$.on('socket_test',function(){
+						Yes.server({localy:1,cmd:'socket_test'});
+						toastr.info('OK');
+					});
+				});
