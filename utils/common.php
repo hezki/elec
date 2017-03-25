@@ -1155,8 +1155,8 @@ function F1332($s,$fn='local_error.log',$no_trace=true,$dump=false){
 }
 function F1341(){
 	$t=time();
-	$t+=(60*60);
-	$t+=(60*60);
+	//$t+=(60*60);
+	//$t+=(60*60);
 	return $t;
 }
 function F1348($e){throw new Exception($e);}
