@@ -49,7 +49,7 @@ function sort_by_timec($a, $b){
 
  function F11CE($p){
 	$res=array('result'=>'OK');
-	global $summer;
+	global $summer,$times;
 	$a=$p['cmd'];
 	switch($a){
 		case "proc":
@@ -60,7 +60,7 @@ function sort_by_timec($a, $b){
 				return;
 			}
 			$a=explode(',',$p['p']);
-			switch($a[0]){
+			switch($a[0]){				
 				case 'data':				
 					die("OK\n".F138D());
 					break;
@@ -92,6 +92,12 @@ function sort_by_timec($a, $b){
 					F1348(print_r($p,1));
 			}
 			break;
+		case 'test1':
+			//$res['data']=['tz'=>date_default_timezone_get(),'time'=>date('H:i:s'),'time1'=>date('H:i:s I'),'d'=>time(),'d1'=> print_r(new DateTime,1)];
+			F1225(date('Y-m-d'));
+			$res['data']=['tz'=>$times['2017-03-24'],'time'=>date('H:i:s',1490367182),'tt'=>strtotime('2017-03-24 17:53:02'),'time3'=>date('H:i:s',strtotime('-1 day',1490367182)),'time1'=>(date('H:i:s')),'time2'=>time()];
+		
+			break;
 		case "test":
 			$t=strtotime('2014-05-01');
 			//$t+=60*60;
@@ -106,7 +112,7 @@ function sort_by_timec($a, $b){
 				$res['data1']=date('Y-m-d H:i:s',F1341());
 				}
 			//$res['dd']=F137D('select hands from days where grp=0 and date="'.$ds.'"',0);
-			$res['test']=F1242(strtotime('2014-04-14'),1);
+			$res['data']=F1242(strtotime('2014-04-14'),1);
 			
 			break;
 		case 'hand_cmds':

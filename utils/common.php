@@ -145,11 +145,16 @@ function F122A($ds,$id){
 			//print_r(array(strlen($s),ord($s{3}),ord($s{355})));			
 			if(strlen($s)==356 && ord($s{3})==254 && ord($s{355})==255){				
 				$r=array();
+				$cd='20'.str_pad(ord($s{0}),2,'0',STR_PAD_LEFT).'-'.str_pad(ord($s{1})+1,2,'0',STR_PAD_LEFT).'-'.str_pad(ord($s{2}),2,'0',STR_PAD_LEFT);
+				$sum=$summer[substr($cd,0,4)];
+				$is_sum=$cd>$sum[0] && $cd<$sum[1];
 				for($i=0;$i<117;$i++){
 					$c=($i*3)+4;
-					$r[]=strtotime('20'.str_pad(ord($s{0}),2,'0',STR_PAD_LEFT).'-'.(ord($s{1})+1).'-'.ord($s{2}).' '. ord($s{$c++}).':'.ord($s{$c++}).':'.ord($s{$c++}));
+					$v=strtotime('20'.str_pad(ord($s{0}),2,'0',STR_PAD_LEFT).'-'.(ord($s{1})+1).'-'.ord($s{2}).' '. ord($s{$c++}).':'.ord($s{$c++}).':'.ord($s{$c++}));
+					if($is_sum)$v+=(60*60);
+					$r[]=$v;
 				}
-				$times['20'.str_pad(ord($s{0}),2,'0',STR_PAD_LEFT).'-'.str_pad(ord($s{1})+1,2,'0',STR_PAD_LEFT).'-'.str_pad(ord($s{2}),2,'0',STR_PAD_LEFT)]=$r;
+				$times[$cd]=$r;
 			}
 		}			
 		fclose($f);				
@@ -170,8 +175,8 @@ function F122A($ds,$id){
 				break;
 		}		
 	}else return mktime(0,0,0,0,0,0);
-	$sum=$summer[substr($ds,0,4)];
-	if($ds>$sum[0] && $ds<$sum[1])$x['hours']++;
+	//$sum=$summer[substr($ds,0,4)];
+	//if($ds>$sum[0] && $ds<$sum[1])$x['hours']++;
 	//if($x['hours']>23)return mktime(0,0,0);
 	$r=mktime($x['hours'],$x['minutes'],0,$x['mon'],$x['mday'],$x['year']);	
 	return $r;
