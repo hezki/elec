@@ -8,7 +8,7 @@ header('Access-Control-Allow-Headers: content-type');
 //ChromePhp::warn('something went wrong!');
 //error_reporting(0);
 //date_default_timezone_set('Asia/Jerusalem'); 
-date_default_timezone_set('UTC'); 
+//date_default_timezone_set('UTC'); 
 $h1=explode(',',',א,ב,ג,ד,ה,ו,ז,ח,ט');
 $h2=explode(',',',י,כ,ל,מ,נ,ס,ע,פ,צ');
 function F11B6($v){
