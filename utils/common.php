@@ -274,12 +274,12 @@ function F1242($d,$times_in_string=false,$recalc=true,$only_grp=-1){
 						//if($times_in_string)$t=date('Y-m-d H:i:s',$t);
 						break;
 					case 1://before
-						$t=(F122A($ds,$v['zman']))-strtotime('1970-01-01 '.$v['time']);
+						$t=(F122A($ds,$v['zman']))-strtotime('1970-01-01 '.$v['time'].' UTC');
 						//if($t<$d-$half)$t=$d-$half;
 						//if($times_in_string)$t=date('Y-m-d H:i:s',$t);
 						break;
 					case 2://after
-						$t=(F122A($ds,$v['zman']))+strtotime('1970-01-01 '.$v['time']);
+						$t=(F122A($ds,$v['zman']))+strtotime('1970-01-01 '.$v['time'].' UTC');
 						//if($t>$d+($half-1))$t=($d+$half)-60;					
 						//if($times_in_string)$t=date('Y-m-d H:i:s',$t);
 						break;

@@ -96,7 +96,7 @@ function sort_by_timec($a, $b){
 			//$res['data']=['tz'=>date_default_timezone_get(),'time'=>date('H:i:s'),'time1'=>date('H:i:s I'),'d'=>time(),'d1'=> print_r(new DateTime,1)];
 			F1225(date('Y-m-d'));
 			$res['data']=['tz'=>$times['2017-03-24'],'time'=>date('H:i:s',1490367182),'tt'=>strtotime('2017-03-24 17:53:02'),'time3'=>date('H:i:s',strtotime('-1 day',1490367182)),'time1'=>(date('H:i:s')),'time2'=>time()];
-		
+			$res['data']['aa']=strtotime('2017-03-29');
 			break;
 		case "test":
 			$t=strtotime('2014-05-01');
@@ -330,7 +330,7 @@ function sort_by_timec($a, $b){
 				$d+=24*60*60;				
 			}			
 			
-			$res['data']=array('days'=>$r,'data'=>array_values($s),'now'=>(string)$now);			
+			$res['data']=array('days'=>$r,'data'=>array_values($s),'now'=>(string)$now,'tz'=>date_default_timezone_get());			
 			$res['data']['now1']=array("time"=>F1341(),"dd"=>date('Y-m-d H:i:s',F1341()));			
 			//global $dmatcons;
 			//$res['temp']=$dmatcons;
@@ -485,6 +485,7 @@ function sort_by_timec($a, $b){
 			$x=F137D('select id,base from zmanim order by ord,name',1);
 			$q=array();
 			foreach($x as $k)$q[$k['id']]=F122A($ds,$k['id']);
+			$q[0]=$d;
 			$res['data']=$q;
 			break;
 		case "cmd_all1"://get all cmds			
@@ -500,7 +501,7 @@ function sort_by_timec($a, $b){
 			$ds=date('Y-m-d',$d);
 			$v=F137D('SELECT matcon,`switch`,id,`type`,zman,days,`action`,time,`disable` FROM cmds where id='.$p['id'],0);
 			if(!$v)F1348('פקודה לא קיימת');
-			$v["time"]=strtotime('1970-01-01 '.$v['time']);					
+			$v["time"]=strtotime('1970-01-01 '.$v['time'].' UTC');					
 			switch($v['type']){
 				case 0:
 					$v['timec']=$v['time'];
@@ -561,7 +562,7 @@ function sort_by_timec($a, $b){
 				$b=F137D('SELECT matcon,`switch`,id,`type`,zman,days,`action`,time,`disable` FROM cmds where switch='.$p['switch'].' and matcon='.$k['id'],1);
 				//foreach($b as &$v)$v['time']=date('H:i',strtotime($v['time']));
 				foreach($b as &$v){					
-					$v["time"]=strtotime('1970-01-01 '.$v['time']);					
+					$v["time"]=strtotime('1970-01-01 '.$v['time'].' UTC');					
 					switch($v['type']){
 						case 0:
 							$v['timec']=$d+$v['time'];
