@@ -1,10 +1,18 @@
-.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
+meta(id="viewport" content="width=device-width; initial-scale=1.0;")
+//-.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
 	.pull-right
 		button.navbar-toggle(type='button', data-toggle='offcanvas',data-canvas="body", data-target='.offcanvas',style='display:block;top:17px;right:10px;margin:5px;border:0')		
 			span.icon-bar
 			span.icon-bar
 			span.icon-bar
-.navmenu.navmenu-default.navmenu-fixed-right.offcanvas(role='navigation')
+.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
+	.pull-right
+		button.navbar-toggle(type='button',style='display:block;top:17px;right:10px;margin:5px;border:0')		
+			span.icon-bar
+			span.icon-bar
+			span.icon-bar
+
+.navmenu.navmenu-default.navmenu-fixed-right.main_menu(role='navigation',style='position:fixed;right:0;overflow:hidden;width:0;z-index:9999;')
 	-local.nav=0
 		a.navmenu-brand(href='#',onclick=ev('socket_test')) #{C.TITLE}
 		ul.nav.navmenu-nav#navbar
