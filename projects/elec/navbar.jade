@@ -1,20 +1,21 @@
 meta(id="viewport" content="width=device-width; initial-scale=1.0;")
-//-.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
+//-.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999999;')
 	.pull-right
 		button.navbar-toggle(type='button', data-toggle='offcanvas',data-canvas="body", data-target='.offcanvas',style='display:block;top:17px;right:10px;margin:5px;border:0')		
 			span.icon-bar
 			span.icon-bar
 			span.icon-bar
-.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999;')
+.navbar.offcanvas-btn.navbar-default(style='position:fixed;z-index:999999;')
 	.pull-right
 		button.navbar-toggle(type='button',style='display:block;top:17px;right:10px;margin:5px;border:0')		
 			span.icon-bar
 			span.icon-bar
 			span.icon-bar
-
-.navmenu.navmenu-default.navmenu-fixed-right.main_menu(role='navigation',style='position:fixed;right:0;overflow:hidden;width:0;z-index:9999;')
+.fade_all(style='position:fixed;height:100%;z-index:9990;background-color:black',onclick="$('.main_menu,.fade_all').removeClass('open')")
+.navmenu.navmenu-default.navmenu-fixed-right.main_menu(role='navigation',style='position:fixed;right:0;overflow:hidden;padding-top:10px;z-index:9999;')
+	
 	-local.nav=0
-		a.navmenu-brand(href='#',onclick=ev('socket_test')) #{C.TITLE}
+		a.navmenu-brand(href='#',style='padding-right:80px') #{C.TITLE}
 		ul.nav.navmenu-nav#navbar
 			li
 				a(href='/#{local.path}/') סטטוס
@@ -34,7 +35,31 @@ meta(id="viewport" content="width=device-width; initial-scale=1.0;")
 				a(href='/#{local.path}/times') זמני היום
 			//-li
 				a(href='/#{local.path}/bak') יצירת גיבוי
+			style.
+				.main_menu{ max-width:0;
+					white-space:nowrap;
+					-webkit-transition: max-width 0.5s ease;
+					-moz-transition: max-width 0.5s ease;
+					-o-transition: max-width 0.5s ease;
+					transition: max-width 0.5s ease;}
+				.main_menu.open{
+					max-width:500px;
+				}
+				.fade_all{
+					width:0;
+					opacity:0;					
+					-webkit-transition:opacity 0.5s;
+					transition: opacity 0.5s;
+				}
+				.fade_all.open{
+					width:100%;
+					opacity:0.3;
+					
+				}
 			script.
+				$('.navbar-toggle').click(function(){
+					$('.main_menu,.fade_all').toggleClass('open');
+				});
 				$(window).ready(function(){
 					$$.on('socket_test',function(){
 						Yes.server({localy:1,cmd:'socket_test'});
