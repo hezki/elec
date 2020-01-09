@@ -1,0 +1,2 @@
+var zlib=require("zlib"),fs=require("fs"),src=process.argv[2],trg=process.argv[3];src&&trg||(console.log("USAGE: node rebackup.js <src_file> <trg_file>"),process.exit(1));var input=fs.readFileSync(src);zlib.inflateRaw(input,function(r,e){r?console.log("ERROR",r):(fs.writeFileSync(trg,e),console.log("OK"))});
+//# sourceMappingURL=rebackup.js.map
